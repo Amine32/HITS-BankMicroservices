@@ -3,44 +3,53 @@ package ru.tsu.hits.user_account_service.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.tsu.hits.user_account_service.model.UserEntity;
+import ru.tsu.hits.user_account_service.dto.UserDto;
+import ru.tsu.hits.user_account_service.dto.converter.UserDtoConverter;
 import ru.tsu.hits.user_account_service.service.UserService;
 
+import java.util.Optional;
+
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/users")
 public class UserController {
 
     private final UserService userService;
+    private final UserDtoConverter userDtoConverter;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, UserDtoConverter userDtoConverter) {
         this.userService = userService;
+        this.userDtoConverter = userDtoConverter;
     }
 
     @PostMapping
-    public ResponseEntity<UserEntity> createUser(@RequestBody UserEntity user) {
-        UserEntity createdUser = userService.createUser(user);
-        return ResponseEntity.ok(createdUser);
+    public ResponseEntity<UserDto> createUser(@RequestBody UserDto userDto) {
+        return ResponseEntity.ok(userDtoConverter.convertToDto(userService.createUser(userDtoConverter.convertToEntity(userDto))));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserEntity> getUserById(@PathVariable Long id) {
-        UserEntity user = userService.findById(id);
-        return ResponseEntity.ok(user);
+    public ResponseEntity<UserDto> getUser(@PathVariable Long id) {
+        Optional<UserDto> userDto = userService.getUser(id).map(userDtoConverter::convertToDto);
+        return userDto.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserEntity> updateUser(@PathVariable Long id, @RequestBody UserEntity userDetails) {
-        UserEntity updatedUser = userService.updateUser(id, userDetails);
-        return ResponseEntity.ok(updatedUser);
+    public ResponseEntity<UserDto> updateUser(@PathVariable Long id, @RequestBody UserDto userDto) {
+        if (!id.equals(userDto.getId())) {
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok(userDtoConverter.convertToDto(userService.updateUser(userDtoConverter.convertToEntity(userDto))));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
-    // Additional endpoints can be added for password updates, activation/deactivation, etc.
+    @PostMapping("/authenticate")
+    public ResponseEntity<?> authenticate(@RequestBody UserDto userDto) {
+        Optional<String> token = userService.authenticate(userDto.getUsername(), userDto.getPassword());
+        return token.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
 }
-

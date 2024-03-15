@@ -1,12 +1,11 @@
 package ru.tsu.hits.user_account_service.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import ru.tsu.hits.user_account_service.exception.UserNotFoundException;
-import ru.tsu.hits.user_account_service.model.UserEntity;
+import org.springframework.stereotype.Service;
+import ru.tsu.hits.user_account_service.model.User;
 import ru.tsu.hits.user_account_service.repository.UserRepository;
+import ru.tsu.hits.user_account_service.security.JwtUtil;
 
 import java.util.Optional;
 
@@ -15,40 +14,39 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
     @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
     }
 
-    @Transactional
-    public UserEntity createUser(UserEntity user) {
+    public User createUser(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
 
-    @Transactional(readOnly = true)
-    public UserEntity findById(Long id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("User with id " + id + " not found"));
+    public Optional<User> getUser(Long id) {
+        return userRepository.findById(id);
     }
 
-    @Transactional
-    public UserEntity updateUser(Long id, UserEntity userDetails) {
-        UserEntity user = findById(id);
-        user.setEmail(userDetails.getEmail());
-        user.setUsername(userDetails.getUsername());
-        // Do not update the password here. That should be a separate operation.
+    public User updateUser(User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
 
-    @Transactional
     public void deleteUser(Long id) {
-        UserEntity user = findById(id);
-        userRepository.delete(user);
+        userRepository.deleteById(id);
     }
 
-    // Additional methods for password change, user activation/deactivation, etc.
+    public Optional<String> authenticate(String username, String password) {
+        Optional<User> user = userRepository.findByUsername(username);
+        if (user.isPresent() && passwordEncoder.matches(password, user.get().getPassword())) {
+            String token = jwtUtil.generateToken(user.get());
+            return Optional.of(token);
+        }
+        return Optional.empty();
+    }
 }
-
