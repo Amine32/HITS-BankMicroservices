@@ -92,8 +92,6 @@
 
     <modules>
         <module>Bank-Account-Service</module>
-        <module>Customer-Web-Application</module>
-        <module>Employee-Web-Application</module>
         <module>Loan-Service</module>
         <module>User-Account-Service</module>
         <module>API-Gateway</module>
