@@ -3,8 +3,7 @@ package ru.tsu.hits.core_service.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.tsu.hits.core_service.dto.TransactionDto;
-import ru.tsu.hits.core_service.dto.converter.TransactionDtoConverter;
+import ru.tsu.hits.core_service.model.Transaction;
 import ru.tsu.hits.core_service.service.TransactionService;
 
 import java.util.Optional;
@@ -14,31 +13,29 @@ import java.util.Optional;
 public class TransactionController {
 
     private final TransactionService transactionService;
-    private final TransactionDtoConverter transactionDtoConverter;
 
     @Autowired
-    public TransactionController(TransactionService transactionService, TransactionDtoConverter transactionDtoConverter) {
+    public TransactionController(TransactionService transactionService) {
         this.transactionService = transactionService;
-        this.transactionDtoConverter = transactionDtoConverter;
     }
 
     @PostMapping
-    public ResponseEntity<TransactionDto> createTransaction(@RequestBody TransactionDto transactionDto) {
-        return ResponseEntity.ok(transactionDtoConverter.convertToDto(transactionService.createTransaction(transactionDtoConverter.convertToEntity(transactionDto))));
+    public ResponseEntity<Transaction> createTransaction(@RequestBody Transaction transaction) {
+        return ResponseEntity.ok(transactionService.createTransaction(transaction));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TransactionDto> getTransaction(@PathVariable Long id) {
-        Optional<TransactionDto> transactionDto = transactionService.getTransaction(id).map(transactionDtoConverter::convertToDto);
-        return transactionDto.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<Transaction> getTransaction(@PathVariable Long id) {
+        Optional<Transaction> transaction = transactionService.getTransaction(id);
+        return transaction.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<TransactionDto> updateTransaction(@PathVariable Long id, @RequestBody TransactionDto transactionDto) {
-        if (!id.equals(transactionDto.getId())) {
+    public ResponseEntity<Transaction> updateTransaction(@PathVariable Long id, @RequestBody Transaction transaction) {
+        if (!id.equals(transaction.getId())) {
             return ResponseEntity.badRequest().build();
         }
-        return ResponseEntity.ok(transactionDtoConverter.convertToDto(transactionService.updateTransaction(transactionDtoConverter.convertToEntity(transactionDto))));
+        return ResponseEntity.ok(transactionService.updateTransaction(transaction));
     }
 
     @DeleteMapping("/{id}")

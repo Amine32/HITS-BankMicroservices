@@ -41,8 +41,8 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
-    public Optional<String> authenticate(String username, String password) {
-        Optional<User> user = userRepository.findByUsername(username);
+    public Optional<String> authenticate(String email, String password) {
+        Optional<User> user = userRepository.findByEmail(email);
         if (user.isPresent() && passwordEncoder.matches(password, user.get().getPassword())) {
             String token = jwtUtil.generateToken(user.get());
             return Optional.of(token);

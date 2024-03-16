@@ -3,8 +3,7 @@ package ru.tsu.hits.user_service.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.tsu.hits.user_service.dto.UserDto;
-import ru.tsu.hits.user_service.dto.converter.UserDtoConverter;
+import ru.tsu.hits.user_service.model.User;
 import ru.tsu.hits.user_service.service.UserService;
 
 import java.util.Optional;
@@ -12,33 +11,30 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
-
     private final UserService userService;
-    private final UserDtoConverter userDtoConverter;
 
     @Autowired
-    public UserController(UserService userService, UserDtoConverter userDtoConverter) {
+    public UserController(UserService userService) {
         this.userService = userService;
-        this.userDtoConverter = userDtoConverter;
     }
 
     @PostMapping
-    public ResponseEntity<UserDto> createUser(@RequestBody UserDto userDto) {
-        return ResponseEntity.ok(userDtoConverter.convertToDto(userService.createUser(userDtoConverter.convertToEntity(userDto))));
+    public ResponseEntity<User> createUser(@RequestBody User user) {
+        return ResponseEntity.ok(userService.createUser(user));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserDto> getUser(@PathVariable Long id) {
-        Optional<UserDto> userDto = userService.getUser(id).map(userDtoConverter::convertToDto);
-        return userDto.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<User> getUser(@PathVariable Long id) {
+        Optional<User> user = userService.getUser(id);
+        return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserDto> updateUser(@PathVariable Long id, @RequestBody UserDto userDto) {
-        if (!id.equals(userDto.getId())) {
+    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User user) {
+        if (!id.equals(user.getId())) {
             return ResponseEntity.badRequest().build();
         }
-        return ResponseEntity.ok(userDtoConverter.convertToDto(userService.updateUser(userDtoConverter.convertToEntity(userDto))));
+        return ResponseEntity.ok(userService.updateUser(user));
     }
 
     @DeleteMapping("/{id}")
@@ -48,8 +44,8 @@ public class UserController {
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<?> authenticate(@RequestBody UserDto userDto) {
-        Optional<String> token = userService.authenticate(userDto.getUsername(), userDto.getPassword());
+    public ResponseEntity<?> authenticate(@RequestBody User user) {
+        Optional<String> token = userService.authenticate(user.getEmail(), user.getPassword());
         return token.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 }

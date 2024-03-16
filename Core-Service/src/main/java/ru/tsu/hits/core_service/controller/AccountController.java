@@ -3,8 +3,7 @@ package ru.tsu.hits.core_service.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.tsu.hits.core_service.dto.AccountDto;
-import ru.tsu.hits.core_service.dto.converter.AccountDtoConverter;
+import ru.tsu.hits.core_service.model.Account;
 import ru.tsu.hits.core_service.service.AccountService;
 
 import java.util.Optional;
@@ -14,31 +13,29 @@ import java.util.Optional;
 public class AccountController {
 
     private final AccountService accountService;
-    private final AccountDtoConverter accountDtoConverter;
 
     @Autowired
-    public AccountController(AccountService accountService, AccountDtoConverter accountDtoConverter) {
+    public AccountController(AccountService accountService) {
         this.accountService = accountService;
-        this.accountDtoConverter = accountDtoConverter;
     }
 
     @PostMapping
-    public ResponseEntity<AccountDto> createAccount(@RequestBody AccountDto accountDto) {
-        return ResponseEntity.ok(accountDtoConverter.convertToDto(accountService.createAccount(accountDtoConverter.convertToEntity(accountDto))));
+    public ResponseEntity<Account> createAccount(@RequestBody Account account) {
+        return ResponseEntity.ok(accountService.createAccount(account));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<AccountDto> getAccount(@PathVariable Long id) {
-        Optional<AccountDto> accountDto = accountService.getAccount(id).map(accountDtoConverter::convertToDto);
-        return accountDto.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<Account> getAccount(@PathVariable Long id) {
+        Optional<Account> account = accountService.getAccount(id);
+        return account.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<AccountDto> updateAccount(@PathVariable Long id, @RequestBody AccountDto accountDto) {
-        if (!id.equals(accountDto.getId())) {
+    public ResponseEntity<Account> updateAccount(@PathVariable Long id, @RequestBody Account account) {
+        if (!id.equals(account.getId())) {
             return ResponseEntity.badRequest().build();
         }
-        return ResponseEntity.ok(accountDtoConverter.convertToDto(accountService.updateAccount(accountDtoConverter.convertToEntity(accountDto))));
+        return ResponseEntity.ok(accountService.updateAccount(account));
     }
 
     @DeleteMapping("/{id}")

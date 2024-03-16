@@ -25,7 +25,19 @@ public class Loan {
     private BigDecimal amount;
 
     @Column(nullable = false)
+    private BigDecimal interestRate;
+
+    @Column(nullable = false)
+    private Integer duration;
+
+    @Column(nullable = false)
+    private LoanStatus loanStatus;
+
+    @Column(nullable = false)
     private LocalDateTime createdAt;
+
+    @Column(nullable = false)
+    private LocalDateTime closedAt;
 
     @Column(nullable = false)
     private boolean isActive;

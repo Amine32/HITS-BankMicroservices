@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "accounts")
@@ -19,11 +20,8 @@ public class Account {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
-    private String accountNumber;
-
     @Column(nullable = false)
-    private Long userId;
+    private Long ownerId;
 
     @Enumerated(EnumType.STRING)
     private AccountType accountType;
@@ -36,5 +34,7 @@ public class Account {
 
     @Column(nullable = false)
     private boolean isActive;
-}
 
+    @OneToMany(mappedBy = "account")
+    private List<Transaction> transactions;
+}

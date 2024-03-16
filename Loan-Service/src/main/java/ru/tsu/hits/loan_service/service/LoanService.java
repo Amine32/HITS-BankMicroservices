@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.tsu.hits.loan_service.model.Loan;
 import ru.tsu.hits.loan_service.repository.LoanRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -31,5 +32,9 @@ public class LoanService {
 
     public void deleteLoan(Long id) {
         loanRepository.deleteById(id);
+    }
+
+    public List<Loan> getAllLoans() {
+        return loanRepository.findAll();
     }
 }

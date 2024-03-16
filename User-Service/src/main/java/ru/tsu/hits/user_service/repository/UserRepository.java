@@ -7,6 +7,6 @@ import ru.tsu.hits.user_service.model.UserRole;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
-    Optional<User> findByUsername(String username);
-    Optional<User> findByUsernameAndRole(String username, UserRole role);
+    Optional<User> findByEmail(String email);
+    Optional<User> findByEmailAndRole(String email, UserRole role);
 }
