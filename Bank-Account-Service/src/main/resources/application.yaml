@@ -1,0 +1,20 @@
+server:
+  port: 8081
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/bank_account_service
+    username: bank_user
+    password: bank_pass
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+app:
+  jwtSecret: YourJwtSecretHere
+  jwtExpirationInMs: 3600000 # 1 hour
+
+# Custom properties related to bank account service
+
