@@ -18,25 +18,17 @@ public class ApiGatewayApplication {
     public RouteLocator myRoutes(RouteLocatorBuilder builder) {
         return builder.routes()
                 .route(p -> p
-                        .path("/bank-account/**")
+                        .path("/core/**")
                         .filters(f -> f.stripPrefix(1))
                         .uri("http://localhost:8081/"))
                 .route(p -> p
-                        .path("/customer/**")
+                        .path("/loan/**")
                         .filters(f -> f.stripPrefix(1))
                         .uri("http://localhost:8082/"))
                 .route(p -> p
-                        .path("/employee/**")
-                        .filters(f -> f.stripPrefix(1))
-                        .uri("http://localhost:8083/"))
-                .route(p -> p
-                        .path("/loan/**")
-                        .filters(f -> f.stripPrefix(1))
-                        .uri("http://localhost:8084"))
-                .route(p -> p
                         .path("/user/**")
                         .filters(f -> f.stripPrefix(1))
-                        .uri("http://localhost:8085"))
+                        .uri("http://localhost:8083/"))
                 .build();
     }
 }

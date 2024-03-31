@@ -6,6 +6,7 @@ spring:
           '[/**]':
             allowedOrigins:
               - 'http://localhost:3000'
+              - 'http://localhost:3001'
             allowedMethods:
               - GET
               - POST
@@ -15,4 +16,5 @@ spring:
               - PATCH
             allowedHeaders: '*'
             allowCredentials: true
+
 
