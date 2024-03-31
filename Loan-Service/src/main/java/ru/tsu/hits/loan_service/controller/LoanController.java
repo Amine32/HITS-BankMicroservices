@@ -3,11 +3,12 @@ package ru.tsu.hits.loan_service.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.tsu.hits.loan_service.dto.LoanApplicationDto;
+import ru.tsu.hits.loan_service.dto.PaymentDto;
 import ru.tsu.hits.loan_service.model.Loan;
 import ru.tsu.hits.loan_service.service.LoanService;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/loans")
@@ -17,33 +18,20 @@ public class LoanController {
     private final LoanService loanService;
 
     @PostMapping
-    public ResponseEntity<Loan> createLoan(@RequestBody Loan loan) {
-        return ResponseEntity.ok(loanService.createLoan(loan));
+    public ResponseEntity<Loan> applyForLoan(@RequestBody LoanApplicationDto application) {
+        Loan loan = loanService.applyForLoan(application);
+        return ResponseEntity.ok(loan);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Loan> getLoan(@PathVariable Long id) {
-        Optional<Loan> loan = loanService.getLoan(id);
-        return loan.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    @PostMapping("/{loanId}/repayments")
+    public ResponseEntity<Loan> makeRepayment(@PathVariable Long loanId, @RequestBody PaymentDto paymentDto) {
+        Loan loan = loanService.repayLoan(loanId, paymentDto.getPaymentAmount());
+        return ResponseEntity.ok(loan);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Loan> updateLoan(@PathVariable Long id, @RequestBody Loan loan) {
-        if (!id.equals(loan.getId())) {
-            return ResponseEntity.badRequest().build();
-        }
-        return ResponseEntity.ok(loanService.updateLoan(loan));
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteLoan(@PathVariable Long id) {
-        loanService.deleteLoan(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping
-    public ResponseEntity<List<Loan>> getAllLoans() {
-        List<Loan> loans = loanService.getAllLoans();
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<Loan>> getLoans(@PathVariable Long userId) {
+        List<Loan> loans = loanService.getLoansByOwner(userId);
         return ResponseEntity.ok(loans);
     }
 }

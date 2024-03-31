@@ -3,11 +3,13 @@ package ru.tsu.hits.loan_service.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.sql.Date;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "payments")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -23,8 +25,8 @@ public class Payment {
     private Loan loan;
 
     @Column(nullable = false)
-    private Double paymentAmount;
+    private BigDecimal paymentAmount;
 
     @Column(nullable = false)
-    private Date paymentDate;
+    private LocalDateTime paymentDate;
 }

@@ -19,26 +19,36 @@ public class Loan {
     private Long id;
 
     @Column(nullable = false)
-    private Long accountId;
+    private Long ownerId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "rate_id", nullable = false)
+    private LoanRate rate;
 
     @Column(nullable = false)
-    private BigDecimal amount;
+    private BigDecimal originalAmount;
 
     @Column(nullable = false)
-    private BigDecimal interestRate;
+    private BigDecimal amountOwed;
+
+    @Column(nullable = false)
+    private BigDecimal amountPaid;
 
     @Column(nullable = false)
     private Integer duration;
 
     @Column(nullable = false)
-    private LoanStatus loanStatus;
+    private LocalDateTime createdAt;
 
     @Column(nullable = false)
-    private LocalDateTime createdAt;
+    private LocalDateTime dueDate;
 
     @Column(nullable = false)
     private LocalDateTime closedAt;
 
     @Column(nullable = false)
-    private boolean isActive;
+    private boolean isClosed;
+
+    @Column(nullable = false)
+    private BigDecimal dailyPayment;
 }

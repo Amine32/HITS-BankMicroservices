@@ -11,10 +11,10 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>Loan-Service</artifactId>
+    <artifactId>ViewLoans-Service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>Loan-Service</name>
-    <description>Loan-Service</description>
+    <name>ViewLoans-Service</name>
+    <description>ViewLoans-Service</description>
     <properties>
         <java.version>17</java.version>
     </properties>
@@ -25,14 +25,13 @@
         </dependency>
 
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webflux</artifactId>
         </dependency>
     </dependencies>
 
