@@ -1,27 +1,25 @@
 package ru.tsu.hits.core_service.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.tsu.hits.core_service.model.Account;
 import ru.tsu.hits.core_service.service.AccountService;
 
+import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/accounts")
+@RequiredArgsConstructor
 public class AccountController {
 
     private final AccountService accountService;
 
-    @Autowired
-    public AccountController(AccountService accountService) {
-        this.accountService = accountService;
-    }
-
-    @PostMapping
-    public ResponseEntity<Account> createAccount(@RequestBody Account account) {
-        return ResponseEntity.ok(accountService.createAccount(account));
+    @PostMapping("/{id}")
+    public ResponseEntity<Account> createAccount(@PathVariable Long id) {
+        return ResponseEntity.ok(accountService.createAccount(id));
     }
 
     @GetMapping("/{id}")
@@ -43,4 +41,29 @@ public class AccountController {
         accountService.deleteAccount(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/{id}/deposit")
+    public ResponseEntity<Account> depositMoney(@PathVariable Long id, @RequestBody BigDecimal amount) {
+        Account account = accountService.depositMoney(id, amount);
+        return ResponseEntity.ok(account);
+    }
+
+    @PostMapping("/{id}/withdraw")
+    public ResponseEntity<Account> withdrawMoney(@PathVariable Long id, @RequestBody BigDecimal amount) {
+        Account account = accountService.withdrawMoney(id, amount);
+        return ResponseEntity.ok(account);
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<Account>> getUserAccounts(@PathVariable Long userId) {
+        List<Account> accounts = accountService.getUserAccounts(userId);
+        return ResponseEntity.ok(accounts);
+    }
+
+    @GetMapping("/primary/{userId}")
+    public ResponseEntity<Long> getPrimaryAccountId(@PathVariable Long userId) {
+        Long accountId = accountService.getPrimaryAccountId(userId);
+        return ResponseEntity.ok(accountId);
+    }
+
 }

@@ -23,9 +23,6 @@ public class Account {
     @Column(nullable = false)
     private Long ownerId;
 
-    @Enumerated(EnumType.STRING)
-    private AccountType accountType;
-
     @Column(nullable = false)
     private BigDecimal balance;
 
@@ -35,6 +32,6 @@ public class Account {
     @Column(nullable = false)
     private boolean isActive;
 
-    @OneToMany(mappedBy = "account")
+    @OneToMany(mappedBy = "accountId")
     private List<Transaction> transactions;
 }

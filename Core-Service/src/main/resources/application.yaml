@@ -1,20 +1,27 @@
-server:
-  port: 8081
-
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/bank_account_service
-    username: bank_user
-    password: bank_pass
-    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5433/core-service
+    username: postgres
+    password: postgres
+
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
 
-app:
-  jwtSecret: YourJwtSecretHere
-  jwtExpirationInMs: 3600000 # 1 hour
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
 
-# Custom properties related to bank account service
+  jackson:
+    serialization:
+      fail-on-empty-beans: false
+
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+server:
+  port: 8081
 

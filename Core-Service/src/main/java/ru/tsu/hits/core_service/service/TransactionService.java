@@ -1,35 +1,34 @@
 package ru.tsu.hits.core_service.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.tsu.hits.core_service.model.Account;
 import ru.tsu.hits.core_service.model.Transaction;
+import ru.tsu.hits.core_service.model.TransactionType;
 import ru.tsu.hits.core_service.repository.TransactionRepository;
 
-import java.util.Optional;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class TransactionService {
 
     private final TransactionRepository transactionRepository;
 
-    @Autowired
-    public TransactionService(TransactionRepository transactionRepository) {
-        this.transactionRepository = transactionRepository;
+    public void recordTransaction(Long accountId, BigDecimal amount, TransactionType type) {
+        Transaction transaction = new Transaction();
+
+        transaction.setAccountId(accountId);
+        transaction.setTransactionType(type);
+        transaction.setAmount(amount);
+        transaction.setTransactionDate(LocalDateTime.now());
+
+        transactionRepository.save(transaction);
     }
 
-    public Transaction createTransaction(Transaction transaction) {
-        return transactionRepository.save(transaction);
-    }
-
-    public Optional<Transaction> getTransaction(Long id) {
-        return transactionRepository.findById(id);
-    }
-
-    public Transaction updateTransaction(Transaction transaction) {
-        return transactionRepository.save(transaction);
-    }
-
-    public void deleteTransaction(Long id) {
-        transactionRepository.deleteById(id);
+    public List<Transaction> getTransactionsByAccountId(Long accountId) {
+        return transactionRepository.findAllByAccountId(accountId);
     }
 }
