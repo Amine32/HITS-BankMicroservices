@@ -1,26 +1,29 @@
 package ru.tsu.hits.user_service.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.tsu.hits.user_service.dto.CreateUpdateUserDto;
+import ru.tsu.hits.user_service.dto.LoginRequest;
 import ru.tsu.hits.user_service.model.User;
 import ru.tsu.hits.user_service.service.UserService;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/users")
+@RequiredArgsConstructor
 public class UserController {
+
     private final UserService userService;
 
-    @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
-
     @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        return ResponseEntity.ok(userService.createUser(user));
+    public ResponseEntity<User> createUser(@RequestBody CreateUpdateUserDto createUserDto) {
+        User user = userService.createUser(createUserDto);
+        return ResponseEntity.ok(user);
     }
 
     @GetMapping("/{id}")
@@ -44,8 +47,31 @@ public class UserController {
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<?> authenticate(@RequestBody User user) {
-        Optional<String> token = userService.authenticate(user.getEmail(), user.getPassword());
-        return token.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<User> authenticate(@RequestBody LoginRequest loginDetails) {
+        try {
+            User authenticatedUser = userService.authenticate(loginDetails.getEmail(), loginDetails.getPassword());
+            return ResponseEntity.ok(authenticatedUser);
+        } catch (RuntimeException ex) {
+            // Log error or handle it according to your application's requirements
+            System.out.println(ex.getMessage());
+            // Respond with an appropriate status code, e.g., UNAUTHORIZED for authentication failure
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+    }
+
+    @GetMapping
+    public ResponseEntity<List<User>> getAllUsers() {
+        List<User> users = userService.getAllUsers();
+        return ResponseEntity.ok(users);
+    }
+
+    @PutMapping("/{id}/block")
+    public ResponseEntity<Void> blockUser(@PathVariable Long id) {
+        boolean success = userService.blockUser(id);
+        if (success) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

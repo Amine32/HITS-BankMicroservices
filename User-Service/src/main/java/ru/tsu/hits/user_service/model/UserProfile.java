@@ -3,6 +3,8 @@ package ru.tsu.hits.user_service.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.sql.Date;
+
 @Entity
 @Table(name = "user_profiles")
 @Getter
@@ -16,8 +18,9 @@ public class UserProfile {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private Long userId;
+    @OneToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private User user;
 
     @Column(nullable = false)
     private String firstName;
@@ -30,10 +33,15 @@ public class UserProfile {
     @Column(nullable = false)
     private String phoneNumber;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "passport_id", referencedColumnName = "id")
-    private Passport passport;
+    @Column(nullable = false)
+    private Date dateOfBirth;
+
+    @Column(nullable = false)
+    private String passportNumber;
 
     @Column(nullable = false)
     private String address;
+
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
 }

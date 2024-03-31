@@ -1,30 +1,28 @@
 package ru.tsu.hits.user_service.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.tsu.hits.user_service.dto.CreateUpdateUserDto;
 import ru.tsu.hits.user_service.model.User;
 import ru.tsu.hits.user_service.repository.UserRepository;
-import ru.tsu.hits.user_service.security.JwtUtil;
 
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final JwtUtil jwtUtil;
 
-    @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtUtil = jwtUtil;
-    }
 
-    public User createUser(User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+    public User createUser(CreateUpdateUserDto createUserDto) {
+        User user = new User();
+        user.setEmail(createUserDto.getEmail());
+        user.setPassword(createUserDto.getPassword());
+        user.setRole(createUserDto.getRole());
+        user.setActive(true); // Assuming a new user should be active by default
         return userRepository.save(user);
     }
 
@@ -33,7 +31,6 @@ public class UserService {
     }
 
     public User updateUser(User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
 
@@ -41,12 +38,30 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
-    public Optional<String> authenticate(String email, String password) {
-        Optional<User> user = userRepository.findByEmail(email);
-        if (user.isPresent() && passwordEncoder.matches(password, user.get().getPassword())) {
-            String token = jwtUtil.generateToken(user.get());
-            return Optional.of(token);
+    public User authenticate(String email, String password) {
+        return userRepository.findByEmail(email).map(user -> {
+            if (user.getPassword().equals(password)) {
+                System.out.println("User found - Authentication successful");
+                return user;
+            } else {
+                System.out.println("Authentication failed - Incorrect password");
+                throw new RuntimeException("Incorrect password."); // Or a more specific exception
+            }
+        }).orElseThrow(() -> new RuntimeException("User not found.")); // Or a more specific exception
+    }
+
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    public boolean blockUser(Long id) {
+        Optional<User> userOptional = userRepository.findById(id);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            user.setActive(false); // Assuming 'active' means not blocked. Adjust if your logic is different.
+            userRepository.save(user);
+            return true;
         }
-        return Optional.empty();
+        return false;
     }
 }
