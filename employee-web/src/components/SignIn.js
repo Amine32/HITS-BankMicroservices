@@ -26,8 +26,7 @@ function SignIn() {
         })
             .then(response => {
                 setLoading(false);
-                // Based on response structure; redirect as necessary
-                navigate('/');
+                navigate('/manage-users');
             })
             .catch(error => {
                 setLoading(false);

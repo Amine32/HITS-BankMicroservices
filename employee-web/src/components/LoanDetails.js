@@ -12,7 +12,6 @@ function LoanDetails({ loan, clearSelection }) {
                 <p>Interest Rate: {loan.interestRate}</p>
                 <p>Duration: {loan.duration}</p>
                 <p>Status: {loan.status}</p>
-                {/* Display other relevant details */}
                 <Button variant="secondary" onClick={clearSelection}>Back to List</Button>
             </Card.Body>
         </Card>

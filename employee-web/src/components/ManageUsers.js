@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import axios from 'axios';
-import {Table, Button, Col, Row, Alert} from 'react-bootstrap';
+import {Table, Button, Col, Row} from 'react-bootstrap';
 import {PlusCircleFill} from "react-bootstrap-icons";
 import { Toast, ToastContainer } from 'react-bootstrap';
 import CreateUserModal from "./CreateUserModal";

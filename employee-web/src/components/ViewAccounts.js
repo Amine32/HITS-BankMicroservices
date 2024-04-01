@@ -1,24 +1,27 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import axios from 'axios';
-import { Table } from 'react-bootstrap';
-import { useNavigate } from "react-router-dom";
+import {Table} from 'react-bootstrap';
+import {useNavigate} from "react-router-dom";
+import ViewTransactionsModal from "./ViewTransactionsModal";
 
 function ViewAccounts() {
     const [accounts, setAccounts] = useState([]);
-    const navigate = useNavigate();
+    const [selectedAccountId, setSelectedAccountId] = useState(null);
+    const [showTransactionsModal, setShowTransactionsModal] = useState(false);
 
     useEffect(() => {
-        // Replace URL with your API endpoint
-        axios.get('http://localhost:8080/api/accounts', {
-            headers: {
-                // Include any necessary headers
-            }
-        }).then(response => {
-            setAccounts(response.data);
-        }).catch(error => {
+        axios.get('http://localhost:8080/core/api/accounts/all')
+            .then(response => {
+                setAccounts(response.data);
+            }).catch(error => {
             console.error('Error fetching accounts', error);
         });
     }, []);
+
+    const handleViewTransactions = (accountId) => {
+        setSelectedAccountId(accountId);
+        setShowTransactionsModal(true);
+    };
 
     return (
         <div>
@@ -39,12 +42,17 @@ function ViewAccounts() {
                         <td>{account.ownerId}</td>
                         <td>{account.balance}</td>
                         <td>
-                            <button onClick={() => navigate(`/account-details/${account.id}`)}>View Details</button>
+                            <button onClick={() => handleViewTransactions(account.id)}>View Transactions</button>
                         </td>
                     </tr>
                 ))}
                 </tbody>
             </Table>
+            <ViewTransactionsModal
+                accountId={selectedAccountId}
+                show={showTransactionsModal}
+                onHide={() => setShowTransactionsModal(false)}
+            />
         </div>
     );
 }

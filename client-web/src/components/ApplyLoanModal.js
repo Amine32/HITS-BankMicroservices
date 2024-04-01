@@ -6,10 +6,28 @@ function ApplyLoanModal({ show, onHide, loanRates, onLoanApplied }) {
     const [selectedRate, setSelectedRate] = useState('');
     const [amount, setAmount] = useState('');
 
-    const applyForLoan = async () => {
-        await axios.post('http://localhost:8080/loan/api/loans', { rateId: selectedRate, amount: amount });
-        onLoanApplied();
-        onHide();
+    const applyForLoan = () => {
+        const ownerId = sessionStorage.getItem('userId');
+
+        const loanData = {
+            ownerId: ownerId,
+            rateId: selectedRate,
+            amount: amount
+        };
+
+        axios.post('http://localhost:8080/loan/api/loans', loanData, {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            withCredentials: true
+        })
+            .then(response => {
+                onLoanApplied();
+                onHide();
+            })
+            .catch(error => {
+                console.error('Error applying for loan', error);
+            });
     };
 
     return (

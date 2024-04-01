@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Button, Table} from 'react-bootstrap';
+import React, {useState, useEffect} from 'react';
+import {Button, Table} from 'react-bootstrap';
 import axios from 'axios';
 import ApplyLoanModal from './ApplyLoanModal';
 
@@ -15,14 +15,39 @@ function ViewLoans() {
 
     const fetchLoans = async () => {
         // Endpoint to fetch loans for the customer
-        const response = await axios.get('http://localhost:8080/loan/api/loans/user/{userId}');
-        setLoans(response.data);
+        const ownerId = sessionStorage.getItem('userId');
+        if (ownerId) {
+            axios.get(`http://localhost:8080/loan/api/loans/user/${ownerId}`, {withCredentials: true})
+                .then(response => {
+                    setLoans(response.data);
+                })
+                .catch(error => {
+                    console.error('Error fetching loans', error);
+                });
+        }
     };
 
-    const fetchLoanRates = async () => {
-        // Endpoint to fetch available loan rates
-        const response = await axios.get('/api/loan-rates');
-        setLoanRates(response.data);
+    const fetchLoanRates = () => {
+        axios.get('http://localhost:8080/loan/api/rates/all', {withCredentials: true})
+            .then(response => {
+                const sortedLoanRates = response.data.sort((a, b) => a.id - b.id);
+                setLoanRates(sortedLoanRates);
+            })
+            .catch(error => {
+                console.error('Error fetching loan rates', error);
+            });
+    };
+
+    const payOffLoan = (loanId) => {
+        axios.post(`http://localhost:8080/loan/api/loans/payoff/${loanId}`, {withCredentials: true})
+            .then(response => {
+                if (response.status === 200) {
+                    fetchLoans(); // Refresh the loans list after successful payoff
+                }
+            })
+            .catch(error => {
+                console.error('Error paying off loan', error);
+            });
     };
 
     return (
@@ -43,7 +68,6 @@ function ViewLoans() {
                         <td>${loan.amountOwed.toFixed(2)}</td>
                         <td>${loan.dailyPayment.toFixed(2)}</td>
                         <td>
-                            {/* Implement pay off functionality */}
                             <Button variant="success" onClick={() => payOffLoan(loan.id)}>Pay Off</Button>
                         </td>
                     </tr>
