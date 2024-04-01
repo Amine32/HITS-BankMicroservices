@@ -14,7 +14,7 @@ public class CoreServiceClient {
 
     private final WebClient.Builder webClientBuilder;
 
-    private final String coreServiceUrl = "https://localhost:8080/core/api";
+    private final String coreServiceUrl = "http://localhost:8080/core/api";
 
     public void postTransaction(Long accountId, BigDecimal amount, String transactionType) {
         AccountTransactionDto transactionDto = new AccountTransactionDto(accountId, amount, transactionType);
@@ -23,6 +23,33 @@ public class CoreServiceClient {
                 .post()
                 .uri(coreServiceUrl + "/transactions")
                 .bodyValue(transactionDto)
+                .retrieve()
+                .bodyToMono(Void.class)
+                .block();
+
+        // Update the account balance
+        if (transactionType.equals("LOAN")) {
+            increaseAccountBalance(accountId, amount);
+        } else if (transactionType.equals("LOAN_PAYMENT")) {
+            decreaseAccountBalance(accountId, amount);
+        }
+    }
+
+    public void increaseAccountBalance(Long accountId, BigDecimal amount) {
+        webClientBuilder.build()
+                .put()
+                .uri(coreServiceUrl + "/accounts/" + accountId + "/add")
+                .bodyValue(amount)
+                .retrieve()
+                .bodyToMono(Void.class)
+                .block();
+    }
+
+    public void decreaseAccountBalance(Long accountId, BigDecimal amount) {
+        webClientBuilder.build()
+                .put()
+                .uri(coreServiceUrl + "/accounts/" + accountId + "/subtract")
+                .bodyValue(amount)
                 .retrieve()
                 .bodyToMono(Void.class)
                 .block();

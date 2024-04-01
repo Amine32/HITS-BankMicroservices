@@ -30,8 +30,14 @@ public class LoanController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Loan>> getLoans(@PathVariable Long userId) {
+    public ResponseEntity<List<Loan>> getLoansByUser(@PathVariable Long userId) {
         List<Loan> loans = loanService.getLoansByOwner(userId);
+        return ResponseEntity.ok(loans);
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<Loan>> getAllLoans() {
+        List<Loan> loans = loanService.getAllLoans();
         return ResponseEntity.ok(loans);
     }
 }

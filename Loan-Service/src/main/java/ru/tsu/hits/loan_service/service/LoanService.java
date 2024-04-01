@@ -2,6 +2,7 @@ package ru.tsu.hits.loan_service.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ru.tsu.hits.loan_service.dto.LoanApplicationDto;
 import ru.tsu.hits.loan_service.model.*;
@@ -40,6 +41,7 @@ public class LoanService {
                 .build();
 
         Long primaryAccountId = coreServiceClient.getPrimaryAccountId(application.getOwnerId());
+        coreServiceClient.increaseAccountBalance(primaryAccountId, application.getAmount());
         coreServiceClient.postTransaction(primaryAccountId, application.getAmount(), "LOAN");
 
         return loanRepository.save(loan);
@@ -55,13 +57,13 @@ public class LoanService {
         return loanRepository.findAllByOwnerId(ownerId);
     }
 
-    @Transactional
     public Loan repayLoan(Long loanId, BigDecimal amount) {
         Loan loan = loanRepository.findById(loanId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid loan ID"));
 
         loan.setAmountPaid(loan.getAmountPaid().add(amount));
         loan.setAmountOwed(loan.getOriginalAmount().subtract(loan.getAmountPaid()));
+        loan.setLastPaymentDate(LocalDateTime.now());
 
         if (loan.getAmountOwed().compareTo(BigDecimal.ZERO) <= 0) {
             loan.setClosed(true);
@@ -75,9 +77,27 @@ public class LoanService {
                 .build());
 
         Long primaryAccountId = coreServiceClient.getPrimaryAccountId(loan.getOwnerId());
+        coreServiceClient.decreaseAccountBalance(primaryAccountId, amount);
         coreServiceClient.postTransaction(primaryAccountId, amount, "LOAN_PAYMENT");
 
         return loanRepository.save(loan);
     }
 
+    @Scheduled(cron = "0 0 0 * * ?") // Run every day at midnight
+    public void processDailyPayments() {
+        List<Loan> activeLoans = loanRepository.findAllByClosedIsFalse();
+        LocalDateTime today = LocalDateTime.now();
+
+        for (Loan loan : activeLoans) {
+            if (loan.getLastPaymentDate() == null || loan.getLastPaymentDate().toLocalDate().isBefore(today.toLocalDate())) {
+                BigDecimal dailyPayment = loan.getDailyPayment();
+                repayLoan(loan.getId(), dailyPayment);
+            }
+        }
+    }
+
+    @Transactional
+    public List<Loan> getAllLoans() {
+        return loanRepository.findAll();
+    }
 }

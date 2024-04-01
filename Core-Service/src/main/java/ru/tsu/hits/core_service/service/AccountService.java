@@ -41,21 +41,33 @@ public class AccountService {
         accountRepository.deleteById(id);
     }
 
-    public Account depositMoney(Long id, BigDecimal amount) {
+    public Account addMoney(Long id, BigDecimal amount) {
         Account account = accountRepository.findById(id).orElseThrow(() -> new RuntimeException("Account not found"));
         account.setBalance(account.getBalance().add(amount));
+
+        return account;
+    }
+
+    public Account depositMoney(Long id, BigDecimal amount) {
+        Account account = addMoney(id, amount);
 
         transactionService.recordTransaction(account.getId(), amount, TransactionType.DEPOSIT);
 
         return accountRepository.save(account);
     }
 
-    public Account withdrawMoney(Long id, BigDecimal amount) {
+    public Account subtractMoney(Long id, BigDecimal amount) {
         Account account = accountRepository.findById(id).orElseThrow(() -> new RuntimeException("Account not found"));
         if (account.getBalance().compareTo(amount) < 0) {
             throw new RuntimeException("Insufficient balance");
         }
         account.setBalance(account.getBalance().subtract(amount));
+
+        return account;
+    }
+
+    public Account withdrawMoney(Long id, BigDecimal amount) {
+        Account account = subtractMoney(id, amount);
 
         transactionService.recordTransaction(account.getId(), amount, TransactionType.WITHDRAWAL);
 
@@ -73,4 +85,7 @@ public class AccountService {
                 .orElse(null);
     }
 
+    public List<Account> getAllAccounts() {
+        return accountRepository.findAll();
+    }
 }

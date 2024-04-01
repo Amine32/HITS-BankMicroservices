@@ -7,5 +7,5 @@ import java.math.BigDecimal;
 public class LoanRateDto {
     private String name;
     private BigDecimal interestRate;
-    private int termLength;
+    private Integer termLength;
 }

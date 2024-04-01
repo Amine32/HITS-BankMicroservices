@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface LoanRepository extends JpaRepository<Loan, Long> {
     List<Loan> findAllByOwnerId(Long ownerId);
+
+    List<Loan> findAllByClosedIsFalse();
 }

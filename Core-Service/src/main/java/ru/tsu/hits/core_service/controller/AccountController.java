@@ -66,4 +66,22 @@ public class AccountController {
         return ResponseEntity.ok(accountId);
     }
 
+    @PostMapping("/{id}/add")
+    public ResponseEntity<Account> addMoney(@PathVariable Long id, @RequestBody BigDecimal amount) {
+        Account account = accountService.addMoney(id, amount);
+        return ResponseEntity.ok(account);
+    }
+
+    @PostMapping("/{id}/subtract")
+    public ResponseEntity<Account> subtractMoney(@PathVariable Long id, @RequestBody BigDecimal amount) {
+        Account account = accountService.subtractMoney(id, amount);
+        return ResponseEntity.ok(account);
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<Account>> getAllAccounts() {
+        List<Account> accounts = accountService.getAllAccounts();
+        return ResponseEntity.ok(accounts);
+    }
+
 }

@@ -25,5 +25,5 @@ public class LoanRate {
     private BigDecimal interestRate; // daily
 
     @Column(nullable = false)
-    private int termLength; // In days
+    private Integer termLength; // In days
 }

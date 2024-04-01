@@ -51,4 +51,7 @@ public class Loan {
 
     @Column(nullable = false)
     private BigDecimal dailyPayment;
+
+    @Column(nullable = false)
+    private LocalDateTime lastPaymentDate;
 }
