@@ -2,7 +2,6 @@ package ru.tsu.hits.core_service.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.tsu.hits.core_service.model.Account;
 import ru.tsu.hits.core_service.model.Transaction;
 import ru.tsu.hits.core_service.model.TransactionType;
 import ru.tsu.hits.core_service.repository.TransactionRepository;

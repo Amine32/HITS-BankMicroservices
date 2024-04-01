@@ -43,7 +43,7 @@ public class Loan {
     @Column(nullable = false)
     private LocalDateTime dueDate;
 
-    @Column(nullable = false)
+    @Column
     private LocalDateTime closedAt;
 
     @Column(nullable = false)
@@ -52,6 +52,6 @@ public class Loan {
     @Column(nullable = false)
     private BigDecimal dailyPayment;
 
-    @Column(nullable = false)
+    @Column
     private LocalDateTime lastPaymentDate;
 }

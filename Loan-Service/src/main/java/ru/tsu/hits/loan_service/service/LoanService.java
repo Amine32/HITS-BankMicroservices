@@ -85,7 +85,7 @@ public class LoanService {
 
     @Scheduled(cron = "0 0 0 * * ?") // Run every day at midnight
     public void processDailyPayments() {
-        List<Loan> activeLoans = loanRepository.findAllByClosedIsFalse();
+        List<Loan> activeLoans = loanRepository.findAllByIsClosedFalse();
         LocalDateTime today = LocalDateTime.now();
 
         for (Loan loan : activeLoans) {

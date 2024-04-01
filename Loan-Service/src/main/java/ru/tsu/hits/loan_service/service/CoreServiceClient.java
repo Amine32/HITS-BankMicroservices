@@ -37,7 +37,7 @@ public class CoreServiceClient {
 
     public void increaseAccountBalance(Long accountId, BigDecimal amount) {
         webClientBuilder.build()
-                .put()
+                .post()
                 .uri(coreServiceUrl + "/accounts/" + accountId + "/add")
                 .bodyValue(amount)
                 .retrieve()
@@ -47,7 +47,7 @@ public class CoreServiceClient {
 
     public void decreaseAccountBalance(Long accountId, BigDecimal amount) {
         webClientBuilder.build()
-                .put()
+                .post()
                 .uri(coreServiceUrl + "/accounts/" + accountId + "/subtract")
                 .bodyValue(amount)
                 .retrieve()
