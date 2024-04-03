@@ -66,7 +66,7 @@
 
     <modules>
         <module>Core-Service</module>
-        <module>ViewLoans-Service</module>
+        <module>Loan-Service</module>
         <module>User-Service</module>
         <module>API-Gateway</module>
     </modules>
