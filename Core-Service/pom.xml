@@ -14,7 +14,7 @@
     <artifactId>Core-Service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>Core-Service</name>
-    <description>Bank-Account-Service</description>
+    <description>Core-Service</description>
     <properties>
         <java.version>17</java.version>
     </properties>

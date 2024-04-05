@@ -11,9 +11,9 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>ViewLoans-Service</artifactId>
+    <artifactId>Loan-Service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>ViewLoans-Service</name>
+    <name>Loan-Service</name>
     <description>ViewLoans-Service</description>
     <properties>
         <java.version>17</java.version>

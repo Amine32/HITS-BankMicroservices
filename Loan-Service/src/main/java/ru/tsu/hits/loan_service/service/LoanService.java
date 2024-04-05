@@ -41,7 +41,6 @@ public class LoanService {
                 .build();
 
         Long primaryAccountId = coreServiceClient.getPrimaryAccountId(application.getOwnerId());
-        coreServiceClient.increaseAccountBalance(primaryAccountId, application.getAmount());
         coreServiceClient.postTransaction(primaryAccountId, application.getAmount(), "LOAN");
 
         return loanRepository.save(loan);
@@ -49,8 +48,7 @@ public class LoanService {
 
 
     private BigDecimal calculateDailyPayment(BigDecimal amount, BigDecimal interestRate, int termLength) {
-        // Placeholder for daily payment calculation logic
-        return amount.multiply(interestRate).divide(new BigDecimal(termLength), BigDecimal.ROUND_HALF_UP);
+        return amount.add(amount.multiply(interestRate.divide(new BigDecimal(100)))).divide(new BigDecimal(termLength), 2, BigDecimal.ROUND_HALF_UP);
     }
 
     public List<Loan> getLoansByOwner(Long ownerId) {
@@ -77,7 +75,6 @@ public class LoanService {
                 .build());
 
         Long primaryAccountId = coreServiceClient.getPrimaryAccountId(loan.getOwnerId());
-        coreServiceClient.decreaseAccountBalance(primaryAccountId, amount);
         coreServiceClient.postTransaction(primaryAccountId, amount, "LOAN_PAYMENT");
 
         return loanRepository.save(loan);

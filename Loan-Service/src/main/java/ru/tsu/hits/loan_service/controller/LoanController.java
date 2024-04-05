@@ -8,6 +8,7 @@ import ru.tsu.hits.loan_service.dto.PaymentDto;
 import ru.tsu.hits.loan_service.model.Loan;
 import ru.tsu.hits.loan_service.service.LoanService;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -39,5 +40,10 @@ public class LoanController {
     public ResponseEntity<List<Loan>> getAllLoans() {
         List<Loan> loans = loanService.getAllLoans();
         return ResponseEntity.ok(loans);
+    }
+
+    @PostMapping("/payoff/{loanId}")
+    public Loan payOff(@PathVariable Long loanId, @RequestBody BigDecimal amount) {
+        return loanService.repayLoan(loanId, amount);
     }
 }

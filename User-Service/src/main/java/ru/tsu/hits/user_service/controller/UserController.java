@@ -52,9 +52,7 @@ public class UserController {
             User authenticatedUser = userService.authenticate(loginDetails.getEmail(), loginDetails.getPassword());
             return ResponseEntity.ok(authenticatedUser);
         } catch (RuntimeException ex) {
-            // Log error or handle it according to your application's requirements
             System.out.println(ex.getMessage());
-            // Respond with an appropriate status code, e.g., UNAUTHORIZED for authentication failure
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
     }

@@ -45,6 +45,8 @@ public class AccountService {
         Account account = accountRepository.findById(id).orElseThrow(() -> new RuntimeException("Account not found"));
         account.setBalance(account.getBalance().add(amount));
 
+        accountRepository.save(account);
+
         return account;
     }
 
@@ -62,6 +64,8 @@ public class AccountService {
             throw new RuntimeException("Insufficient balance");
         }
         account.setBalance(account.getBalance().subtract(amount));
+
+        accountRepository.save(account);
 
         return account;
     }
