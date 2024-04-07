@@ -62,6 +62,7 @@ public class AccountService {
 
     public Account subtractMoney(Long id, BigDecimal amount) {
         Account account = accountRepository.findById(id).orElseThrow(() -> new RuntimeException("Account not found"));
+
         if (account.getBalance().compareTo(amount) < 0) {
             throw new RuntimeException("Insufficient balance");
         }
