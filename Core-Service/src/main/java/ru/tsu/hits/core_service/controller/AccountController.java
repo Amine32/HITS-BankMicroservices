@@ -35,6 +35,7 @@ public class AccountController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("@accountService.isUserAccountOwner(#id,authentication.principal.userId) or hasAuthority('EMPLOYEE')")
     public ResponseEntity<Account> updateAccount(@PathVariable Long id, @RequestBody Account account) {
         if (!id.equals(account.getId())) {
             return ResponseEntity.badRequest().build();
@@ -43,6 +44,7 @@ public class AccountController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("@accountService.isUserAccountOwner(#id,authentication.principal.userId) or hasAuthority('EMPLOYEE')")
     public ResponseEntity<Void> deleteAccount(@PathVariable Long id) {
         accountService.deleteAccount(id);
         return ResponseEntity.noContent().build();
