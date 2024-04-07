@@ -1,10 +1,12 @@
 package ru.tsu.hits.user_service.security;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
+import ru.tsu.hits.user_service.service.UserService;
 
 import java.security.Key;
 import java.util.Date;
@@ -23,10 +25,15 @@ public class JwtUtil {
     }
 
     public String generateToken(Authentication authentication) {
+        UserService.CustomUserDetails userDetails = (UserService.CustomUserDetails) authentication.getPrincipal();
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + jwtExpirationMs);
+
         return Jwts.builder()
-                .setSubject(authentication.getName())
-                .setIssuedAt(new Date())
-                .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
+                .setSubject(userDetails.getUsername())  // User's email as the subject
+                .claim("userId", userDetails.getUserId())  // Include user ID in the claims
+                .setIssuedAt(now)
+                .setExpiration(expiryDate)
                 .signWith(getSigningKey())
                 .compact();
     }

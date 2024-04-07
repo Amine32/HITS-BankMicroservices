@@ -1,10 +1,14 @@
 package ru.tsu.hits.core_service.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import ru.tsu.hits.core_service.dto.AccountTransferDto;
 import ru.tsu.hits.core_service.model.Account;
+import ru.tsu.hits.core_service.security.JwtUtil;
 import ru.tsu.hits.core_service.service.AccountService;
 
 import java.math.BigDecimal;
@@ -17,6 +21,7 @@ import java.util.Optional;
 public class AccountController {
 
     private final AccountService accountService;
+    private final JwtUtil jwtUtil;
 
     @PostMapping("/{id}")
     public ResponseEntity<Account> createAccount(@PathVariable Long id) {
@@ -89,6 +94,15 @@ public class AccountController {
     public ResponseEntity<List<Account>> getAllAccounts() {
         List<Account> accounts = accountService.getAllAccounts();
         return ResponseEntity.ok(accounts);
+    }
+
+    @PostMapping("/transfer")
+    public ResponseEntity<?> transferFunds(@RequestBody AccountTransferDto transferDto, HttpServletRequest request) {
+        String jwt = jwtUtil.getJwtFromRequest(request);
+        Long userId = jwtUtil.getUserIdFromJwtToken(jwt);
+
+        accountService.transferMoney(transferDto, userId);
+        return ResponseEntity.ok().build();
     }
 
 }
