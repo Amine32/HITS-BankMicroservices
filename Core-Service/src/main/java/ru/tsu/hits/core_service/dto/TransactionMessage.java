@@ -8,11 +8,9 @@ import java.math.BigDecimal;
 
 @Data
 @AllArgsConstructor
-public class AccountTransactionDto{
-
+public class TransactionMessage implements Serializable {
     private Long accountId;
-
     private BigDecimal amount;
-
     private String transactionType;
 }
+
