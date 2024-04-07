@@ -29,7 +29,4 @@ public class User {
 
     @Column(nullable = false)
     private boolean isActive;
-
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    private UserProfile profile;
 }
