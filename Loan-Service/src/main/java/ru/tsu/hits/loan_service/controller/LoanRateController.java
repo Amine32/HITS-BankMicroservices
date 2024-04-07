@@ -2,6 +2,7 @@ package ru.tsu.hits.loan_service.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ru.tsu.hits.loan_service.dto.LoanRateDto;
 import ru.tsu.hits.loan_service.model.LoanRate;
@@ -17,6 +18,7 @@ public class LoanRateController {
     private final LoanRateService loanRateService;
 
     @PostMapping
+    @PreAuthorize("hasAuthority('EMPLOYEE')")
     public ResponseEntity<LoanRate> createRate(@RequestBody LoanRateDto loanRateDto) {
         LoanRate rate = loanRateService.createLoanRate(loanRateDto);
         return ResponseEntity.ok(rate);

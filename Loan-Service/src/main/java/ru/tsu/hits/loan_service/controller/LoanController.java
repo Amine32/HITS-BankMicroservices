@@ -2,6 +2,7 @@ package ru.tsu.hits.loan_service.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ru.tsu.hits.loan_service.dto.LoanApplicationDto;
 import ru.tsu.hits.loan_service.dto.PaymentDto;
@@ -31,12 +32,14 @@ public class LoanController {
     }
 
     @GetMapping("/user/{userId}")
+    @PreAuthorize("#userId == authentication.principal.id or hasAuthority('EMPLOYEE')")
     public ResponseEntity<List<Loan>> getLoansByUser(@PathVariable Long userId) {
         List<Loan> loans = loanService.getLoansByOwner(userId);
         return ResponseEntity.ok(loans);
     }
 
     @GetMapping("/all")
+    @PreAuthorize("hasAuthority('EMPLOYEE')")
     public ResponseEntity<List<Loan>> getAllLoans() {
         List<Loan> loans = loanService.getAllLoans();
         return ResponseEntity.ok(loans);

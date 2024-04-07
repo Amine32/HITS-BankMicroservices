@@ -1,13 +1,21 @@
 package ru.tsu.hits.user_service.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import ru.tsu.hits.user_service.dto.CreateUpdateUserDto;
+import ru.tsu.hits.user_service.dto.JwtResponse;
 import ru.tsu.hits.user_service.dto.LoginRequest;
 import ru.tsu.hits.user_service.model.User;
+import ru.tsu.hits.user_service.security.JwtUtil;
 import ru.tsu.hits.user_service.service.UserService;
 
 import java.util.List;
@@ -19,6 +27,8 @@ import java.util.Optional;
 public class UserController {
 
     private final UserService userService;
+    private final JwtUtil jwtUtil;
+    private final AuthenticationManager authenticationManager;
 
     @PostMapping
     public ResponseEntity<User> createUser(@RequestBody CreateUpdateUserDto createUserDto) {
@@ -47,23 +57,28 @@ public class UserController {
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<User> authenticate(@RequestBody LoginRequest loginDetails) {
+    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
         try {
-            User authenticatedUser = userService.authenticate(loginDetails.getEmail(), loginDetails.getPassword());
-            return ResponseEntity.ok(authenticatedUser);
-        } catch (RuntimeException ex) {
-            System.out.println(ex.getMessage());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            String jwt = jwtUtil.generateToken(authentication);
+            return ResponseEntity.ok(new JwtResponse(jwt));
+        } catch (AuthenticationException ex) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication failed: " + ex.getMessage());
         }
     }
 
+
     @GetMapping
+    @PreAuthorize("hasAuthority('EMPLOYEE')")
     public ResponseEntity<List<User>> getAllUsers() {
         List<User> users = userService.getAllUsers();
         return ResponseEntity.ok(users);
     }
 
     @PutMapping("/{id}/block")
+    @PreAuthorize("hasAuthority('EMPLOYEE')")
     public ResponseEntity<Void> blockUser(@PathVariable Long id) {
         boolean success = userService.blockUser(id);
         if (success) {

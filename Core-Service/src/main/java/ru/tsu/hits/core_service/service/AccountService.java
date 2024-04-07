@@ -92,4 +92,8 @@ public class AccountService {
     public List<Account> getAllAccounts() {
         return accountRepository.findAll();
     }
+
+    public boolean isUserAccountOwner(Long accountId, Long userId) {
+        return accountRepository.findByIdAndOwnerId(accountId, userId).isPresent();
+    }
 }

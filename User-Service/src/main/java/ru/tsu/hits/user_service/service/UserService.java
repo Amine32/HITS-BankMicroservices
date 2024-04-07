@@ -1,28 +1,41 @@
 package ru.tsu.hits.user_service.service;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.tsu.hits.user_service.dto.CreateUpdateUserDto;
 import ru.tsu.hits.user_service.model.User;
+import ru.tsu.hits.user_service.model.UserRole;
 import ru.tsu.hits.user_service.repository.UserRepository;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class UserService {
+public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
 
     public User createUser(CreateUpdateUserDto createUserDto) {
+        if (userRepository.findByEmail(createUserDto.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("Email already in use");
+        }
+
         User user = new User();
         user.setEmail(createUserDto.getEmail());
-        user.setPassword(createUserDto.getPassword());
-        user.setRole(createUserDto.getRole());
-        user.setActive(true); // Assuming a new user should be active by default
+        user.setPassword(passwordEncoder.encode(createUserDto.getPassword()));
+        user.setRoles(createUserDto.getRoles()); // Now setting a set of roles
+        user.setActive(true);
         return userRepository.save(user);
     }
 
@@ -38,18 +51,6 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
-    public User authenticate(String email, String password) {
-        return userRepository.findByEmail(email).map(user -> {
-            if (user.getPassword().equals(password)) {
-                System.out.println("User found - Authentication successful");
-                return user;
-            } else {
-                System.out.println("Authentication failed - Incorrect password");
-                throw new RuntimeException("Incorrect password."); // Or a more specific exception
-            }
-        }).orElseThrow(() -> new RuntimeException("User not found.")); // Or a more specific exception
-    }
-
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
@@ -58,10 +59,37 @@ public class UserService {
         Optional<User> userOptional = userRepository.findById(id);
         if (userOptional.isPresent()) {
             User user = userOptional.get();
-            user.setActive(false); // Assuming 'active' means not blocked. Adjust if your logic is different.
+            user.setActive(false);
             userRepository.save(user);
             return true;
         }
         return false;
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + username));
+
+        return new CustomUserDetails(user.getId(), user.getEmail(), user.getPassword(), user.isActive(),
+                getAuthorities(user.getRoles())); // Note the plural 'getRoles'
+    }
+
+    private Collection<? extends GrantedAuthority> getAuthorities(Set<UserRole> roles) {
+        return roles.stream()
+                .map(role -> new SimpleGrantedAuthority(role.name()))
+                .collect(Collectors.toList());
+    }
+
+    @Getter
+    @Setter
+    public static class CustomUserDetails extends org.springframework.security.core.userdetails.User {
+        private final Long userId;
+
+        public CustomUserDetails(Long userId, String username, String password, boolean enabled,
+                                 Collection<? extends GrantedAuthority> authorities) {
+            super(username, password, enabled, true, true, true, authorities);
+            this.userId = userId;
+        }
     }
 }
