@@ -49,4 +49,19 @@ public class LoanController {
     public Loan payOff(@PathVariable Long loanId, @RequestBody BigDecimal amount) {
         return loanService.repayLoan(loanId, amount);
     }
+
+    @GetMapping("/user/{userId}/overdue")
+    @PreAuthorize("#userId == authentication.principal.id or hasAuthority('EMPLOYEE')")
+    public ResponseEntity<List<Loan>> getOverdueLoansByUser(@PathVariable Long userId) {
+        List<Loan> loans = loanService.getOverdueLoansByUser(userId);
+        return ResponseEntity.ok(loans);
+    }
+
+    @GetMapping("/user/{userId}/credit-rating")
+    @PreAuthorize("#userId == authentication.principal.id or hasAuthority('EMPLOYEE')")
+    public ResponseEntity<BigDecimal> getCreditRating(@PathVariable Long userId) {
+        BigDecimal creditRating = loanService.calculateCreditRating(userId);
+        return ResponseEntity.ok(creditRating);
+    }
+
 }

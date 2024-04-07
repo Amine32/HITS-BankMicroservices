@@ -9,8 +9,10 @@ import ru.tsu.hits.loan_service.model.*;
 import ru.tsu.hits.loan_service.repository.LoanRepository;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -96,5 +98,37 @@ public class LoanService {
     @Transactional
     public List<Loan> getAllLoans() {
         return loanRepository.findAll();
+    }
+
+    @Transactional
+    public List<Loan> getOverdueLoansByUser(Long ownerId) {
+        return loanRepository.findAllByOwnerIdAndIsClosedFalse(ownerId).stream()
+                .filter(loan -> loan.getDueDate().isBefore(LocalDateTime.now())
+                        && loan.getAmountOwed().compareTo(BigDecimal.ZERO) > 0)
+                .collect(Collectors.toList());
+    }
+
+    public BigDecimal calculateCreditRating(Long ownerId) {
+        List<Loan> allLoans = loanRepository.findAllByOwnerId(ownerId);
+
+        if (allLoans.isEmpty()) {
+            return BigDecimal.valueOf(1000);
+        }
+
+        BigDecimal totalAmount = allLoans.stream()
+                .map(Loan::getOriginalAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal overdueAmount = allLoans.stream()
+                .filter(loan -> loan.getDueDate().isBefore(LocalDateTime.now()))
+                .map(Loan::getAmountOwed)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal score = BigDecimal.ZERO;
+        if (totalAmount.compareTo(BigDecimal.ZERO) > 0) {
+            score = BigDecimal.ONE.subtract(overdueAmount.divide(totalAmount, 2, RoundingMode.HALF_UP))
+                    .multiply(BigDecimal.valueOf(1000));
+        }
+
+        return score.max(BigDecimal.ZERO);  // Ensure the score doesn't go below 0
     }
 }
