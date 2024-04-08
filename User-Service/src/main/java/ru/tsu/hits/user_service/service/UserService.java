@@ -24,6 +24,7 @@ public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserPreferenceService userPreferenceService;
 
 
     public User createUser(CreateUpdateUserDto createUserDto) {
@@ -36,7 +37,13 @@ public class UserService implements UserDetailsService {
         user.setPassword(passwordEncoder.encode(createUserDto.getPassword()));
         user.setRoles(createUserDto.getRoles()); // Now setting a set of roles
         user.setActive(true);
-        return userRepository.save(user);
+
+        User savedUser = userRepository.save(user);
+
+        //create default user preference
+        userPreferenceService.createUserPreference(savedUser.getId());
+
+        return savedUser;
     }
 
     public Optional<User> getUser(Long id) {
