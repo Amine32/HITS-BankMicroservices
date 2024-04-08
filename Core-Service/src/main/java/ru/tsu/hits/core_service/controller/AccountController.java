@@ -78,18 +78,6 @@ public class AccountController {
         return ResponseEntity.ok(accountId);
     }
 
-    @PostMapping("/{id}/add")
-    public ResponseEntity<Account> addMoney(@PathVariable Long id, @RequestBody BigDecimal amount) {
-        Account account = accountService.addMoney(id, amount);
-        return ResponseEntity.ok(account);
-    }
-
-    @PostMapping("/{id}/subtract")
-    public ResponseEntity<Account> subtractMoney(@PathVariable Long id, @RequestBody BigDecimal amount) {
-        Account account = accountService.subtractMoney(id, amount);
-        return ResponseEntity.ok(account);
-    }
-
     @GetMapping("/all")
     @PreAuthorize("hasAuthority('EMPLOYEE')")
     public ResponseEntity<List<Account>> getAllAccounts() {
@@ -103,6 +91,18 @@ public class AccountController {
         Long userId = jwtUtil.getUserIdFromJwtToken(jwt);
 
         accountService.transferMoney(transferDto, userId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/transfer/from-master/{toAccountId}")
+    public ResponseEntity<?> transferFromMaster(@PathVariable Long toAccountId, @RequestBody BigDecimal amount) {
+        accountService.transferFromMasterAccount(toAccountId, amount);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/transfer/to-master/{fromAccountId}")
+    public ResponseEntity<?> transferToMaster(@PathVariable Long fromAccountId, @RequestBody BigDecimal amount) {
+        accountService.transferToMasterAccount(fromAccountId, amount);
         return ResponseEntity.ok().build();
     }
 

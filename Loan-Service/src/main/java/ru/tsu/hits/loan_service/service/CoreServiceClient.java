@@ -26,29 +26,22 @@ public class CoreServiceClient {
                 .retrieve()
                 .bodyToMono(Void.class)
                 .block();
-
-        // Update the account balance
-        if (transactionType.equals("LOAN")) {
-            increaseAccountBalance(accountId, amount);
-        } else if (transactionType.equals("LOAN_PAYMENT")) {
-            decreaseAccountBalance(accountId, amount);
-        }
     }
 
-    public void increaseAccountBalance(Long accountId, BigDecimal amount) {
+    public void transferFromMasterAccount(Long toAccountId, BigDecimal amount) {
         webClientBuilder.build()
                 .post()
-                .uri(coreServiceUrl + "/accounts/" + accountId + "/add")
+                .uri(coreServiceUrl + "/accounts/transfer/from-master/" + toAccountId)
                 .bodyValue(amount)
                 .retrieve()
                 .bodyToMono(Void.class)
                 .block();
     }
 
-    public void decreaseAccountBalance(Long accountId, BigDecimal amount) {
+    public void transferToMasterAccount(Long fromAccountId, BigDecimal amount) {
         webClientBuilder.build()
                 .post()
-                .uri(coreServiceUrl + "/accounts/" + accountId + "/subtract")
+                .uri(coreServiceUrl + "/accounts/transfer/to-master/" + fromAccountId)
                 .bodyValue(amount)
                 .retrieve()
                 .bodyToMono(Void.class)

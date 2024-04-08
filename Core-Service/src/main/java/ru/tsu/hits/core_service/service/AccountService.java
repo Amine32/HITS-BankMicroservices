@@ -2,6 +2,7 @@ package ru.tsu.hits.core_service.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.tsu.hits.core_service.dto.AccountTransferDto;
 import ru.tsu.hits.core_service.model.Account;
@@ -20,6 +21,9 @@ public class AccountService {
 
     private final TransactionService transactionService;
     private final AccountRepository accountRepository;
+
+    @Value("${core.masterAccountId}")
+    private Long masterAccountId;
 
     public Account createAccount(Long ownerId) {
         Account account = new Account();
@@ -43,38 +47,22 @@ public class AccountService {
         accountRepository.deleteById(id);
     }
 
-    public Account addMoney(Long id, BigDecimal amount) {
+    public Account depositMoney(Long id, BigDecimal amount) {
         Account account = accountRepository.findById(id).orElseThrow(() -> new RuntimeException("Account not found"));
         account.setBalance(account.getBalance().add(amount));
-
-        accountRepository.save(account);
-
-        return account;
-    }
-
-    public Account depositMoney(Long id, BigDecimal amount) {
-        Account account = addMoney(id, amount);
 
         transactionService.recordTransaction(account.getId(), amount, TransactionType.DEPOSIT);
 
         return accountRepository.save(account);
     }
 
-    public Account subtractMoney(Long id, BigDecimal amount) {
+    public Account withdrawMoney(Long id, BigDecimal amount) {
         Account account = accountRepository.findById(id).orElseThrow(() -> new RuntimeException("Account not found"));
 
         if (account.getBalance().compareTo(amount) < 0) {
             throw new RuntimeException("Insufficient balance");
         }
         account.setBalance(account.getBalance().subtract(amount));
-
-        accountRepository.save(account);
-
-        return account;
-    }
-
-    public Account withdrawMoney(Long id, BigDecimal amount) {
-        Account account = subtractMoney(id, amount);
 
         transactionService.recordTransaction(account.getId(), amount.negate(), TransactionType.WITHDRAWAL);
 
@@ -129,5 +117,50 @@ public class AccountService {
         // Record the transactions
         transactionService.recordTransaction(fromAccount.getId(), transferDto.getAmount().negate(), TransactionType.TRANSFER);
         transactionService.recordTransaction(toAccount.getId(), transferDto.getAmount(), TransactionType.TRANSFER);
+    }
+
+    @Transactional
+    public void transferFromMasterAccount(Long toAccountId, BigDecimal amount) {
+        Account masterAccount = findMasterAccount();
+
+        if (masterAccount.getBalance().compareTo(amount) < 0) {
+            throw new RuntimeException("Insufficient funds in master account");
+        }
+
+        masterAccount.setBalance(masterAccount.getBalance().subtract(amount));
+
+        Account toAccount = accountRepository.findById(toAccountId)
+                .orElseThrow(() -> new RuntimeException("Account not found"));
+        toAccount.setBalance(toAccount.getBalance().add(amount));
+
+        accountRepository.save(masterAccount);
+        accountRepository.save(toAccount);
+
+        // Record the transaction from master to client account
+        transactionService.recordTransaction(masterAccount.getId(), amount.negate(), TransactionType.TRANSFER);
+    }
+
+    @Transactional
+    public void transferToMasterAccount(Long fromAccountId, BigDecimal amount) {
+        Account fromAccount = accountRepository.findById(fromAccountId)
+                .orElseThrow(() -> new RuntimeException("Source account not found"));
+        Account masterAccount = findMasterAccount();
+
+        if (fromAccount.getBalance().compareTo(amount) < 0) {
+            throw new RuntimeException("Insufficient funds in the source account");
+        }
+
+        fromAccount.setBalance(fromAccount.getBalance().subtract(amount));
+        masterAccount.setBalance(masterAccount.getBalance().add(amount));
+
+        accountRepository.save(fromAccount);
+        accountRepository.save(masterAccount);
+
+        transactionService.recordTransaction(masterAccount.getId(), amount, TransactionType.TRANSFER);
+    }
+
+    public Account findMasterAccount() {
+        return accountRepository.findById(masterAccountId)
+                .orElseThrow(() -> new RuntimeException("Master account not found"));
     }
 }
