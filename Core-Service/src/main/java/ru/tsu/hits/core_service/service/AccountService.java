@@ -1,5 +1,6 @@
 package ru.tsu.hits.core_service.service;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,7 +16,6 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -174,5 +174,20 @@ public class AccountService {
     public Account findMasterAccount() {
         return accountRepository.findById(masterAccountId)
                 .orElseThrow(() -> new RuntimeException("Master account not found"));
+    }
+
+    @PostConstruct
+    private void initializeMasterAccount() {
+        if (!accountRepository.existsById(masterAccountId)) {
+            Account masterAccount = new Account();
+            masterAccount.setId(masterAccountId);
+            masterAccount.setOwnerId(0L);
+            masterAccount.setBalance(new BigDecimal("1000000000"));
+            masterAccount.setCreatedAt(LocalDateTime.now());
+            masterAccount.setActive(true);
+            masterAccount.setCurrency(Currency.RUB);
+
+            accountRepository.save(masterAccount);
+        }
     }
 }
