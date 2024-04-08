@@ -34,4 +34,8 @@ public class Account {
 
     @OneToMany(mappedBy = "accountId")
     private List<Transaction> transactions;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Currency currency;
 }

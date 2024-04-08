@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.tsu.hits.core_service.dto.AccountTransferDto;
 import ru.tsu.hits.core_service.model.Account;
+import ru.tsu.hits.core_service.model.Currency;
 import ru.tsu.hits.core_service.model.TransactionType;
 import ru.tsu.hits.core_service.repository.AccountRepository;
 
@@ -14,23 +15,26 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class AccountService {
 
     private final TransactionService transactionService;
+    private final CurrencyConversionService currencyConversionService;
     private final AccountRepository accountRepository;
 
     @Value("${core.masterAccountId}")
     private Long masterAccountId;
 
-    public Account createAccount(Long ownerId) {
+    public Account createAccount(Long ownerId, Currency currency) {
         Account account = new Account();
         account.setOwnerId(ownerId);
         account.setBalance(BigDecimal.ZERO);  // Default balance set to 0
         account.setCreatedAt(LocalDateTime.now());  // Set current time as the creation time
         account.setActive(true);  // Set the account as active by default
+        account.setCurrency(currency != null ? currency : Currency.RUB);  // Set currency, default to RUB
 
         return accountRepository.save(account);
     }
@@ -74,7 +78,12 @@ public class AccountService {
     }
 
     public Long getPrimaryAccountId(Long userId) {
-        return getUserAccounts(userId).stream()
+        List<Account> accounts = accountRepository.findAllByOwnerId(userId)
+                .stream()
+                .filter(account -> Currency.RUB.equals(account.getCurrency())) // Filter only RUB accounts
+                .toList();
+
+        return accounts.stream()
                 .max(Comparator.comparing(Account::getBalance))
                 .map(Account::getId)
                 .orElse(null);
@@ -101,6 +110,9 @@ public class AccountService {
             throw new RuntimeException("User does not own the source account");
         }
 
+        // Convert amount if necessary
+        BigDecimal convertedAmount = currencyConversionService.convert(fromAccount.getCurrency(), toAccount.getCurrency(), transferDto.getAmount());
+
         // Check for sufficient funds
         if (fromAccount.getBalance().compareTo(transferDto.getAmount()) < 0) {
             throw new RuntimeException("Insufficient funds in the source account");
@@ -108,7 +120,7 @@ public class AccountService {
 
         // Perform the transfer
         fromAccount.setBalance(fromAccount.getBalance().subtract(transferDto.getAmount()));
-        toAccount.setBalance(toAccount.getBalance().add(transferDto.getAmount()));
+        toAccount.setBalance(toAccount.getBalance().add(convertedAmount));
 
         // Save both the accounts
         accountRepository.save(fromAccount);

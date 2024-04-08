@@ -7,6 +7,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ru.tsu.hits.core_service.dto.AccountTransferDto;
 import ru.tsu.hits.core_service.model.Account;
+import ru.tsu.hits.core_service.model.Currency;
 import ru.tsu.hits.core_service.security.JwtUtil;
 import ru.tsu.hits.core_service.service.AccountService;
 
@@ -23,8 +24,8 @@ public class AccountController {
     private final JwtUtil jwtUtil;
 
     @PostMapping("/{id}")
-    public ResponseEntity<Account> createAccount(@PathVariable Long id) {
-        return ResponseEntity.ok(accountService.createAccount(id));
+    public ResponseEntity<Account> createAccount(@PathVariable Long id, @RequestBody Currency currency) {
+        return ResponseEntity.ok(accountService.createAccount(id, currency));
     }
 
     @GetMapping("/{id}")
