@@ -12,7 +12,7 @@ public class TransactionProducer {
 
     private final KafkaTemplate<String, TransactionMessage> kafkaTemplate;
 
-    @Value("${kafka.topic.transactions}")
+    @Value("${spring.kafka.topic.transactions}")
     private String transactionsTopic;
 
     public void sendTransactionMessage(TransactionMessage message) {

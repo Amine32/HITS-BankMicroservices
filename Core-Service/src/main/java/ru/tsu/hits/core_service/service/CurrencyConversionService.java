@@ -32,7 +32,7 @@ public class CurrencyConversionService {
         ResponseEntity<ExchangeRateResponse> response = restTemplate.getForEntity(url, ExchangeRateResponse.class);
 
         if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
-            return new BigDecimal(response.getBody().getConversionResult()).setScale(2, RoundingMode.HALF_UP);
+            return BigDecimal.valueOf(response.getBody().getConversionResult()).setScale(2, RoundingMode.HALF_UP);
         }
 
         throw new IllegalStateException("Could not fetch exchange rates");

@@ -28,4 +28,4 @@ server:
 jwt:
   secret: 'very big secret'
   expiration:
-    ms: 604,800,000
+    ms: 604800000
