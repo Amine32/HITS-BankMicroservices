@@ -4,18 +4,22 @@ import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import ru.tsu.hits.core_service.dto.AccountTransferDto;
 import ru.tsu.hits.core_service.model.Account;
 import ru.tsu.hits.core_service.model.Currency;
 import ru.tsu.hits.core_service.model.TransactionType;
 import ru.tsu.hits.core_service.repository.AccountRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -25,18 +29,36 @@ public class AccountService {
     private final CurrencyConversionService currencyConversionService;
     private final AccountRepository accountRepository;
 
+    private static final Logger logger = LoggerFactory.getLogger(AccountService.class);
+    private static final int MAX_RETRY_COUNT = 5;
+
     @Value("${core.masterAccountId}")
     private Long masterAccountId;
 
     public Account createAccount(Long ownerId, Currency currency) {
         Account account = new Account();
         account.setOwnerId(ownerId);
-        account.setBalance(BigDecimal.ZERO);  // Default balance set to 0
-        account.setCreatedAt(LocalDateTime.now());  // Set current time as the creation time
-        account.setActive(true);  // Set the account as active by default
-        account.setCurrency(currency != null ? currency : Currency.RUB);  // Set currency, default to RUB
+        account.setBalance(BigDecimal.ZERO);
+        account.setCreatedAt(LocalDateTime.now());
+        account.setActive(true);
+        account.setCurrency(currency != null ? currency : Currency.RUB);
 
-        return accountRepository.save(account);
+        for (int retryCount = 0; retryCount < MAX_RETRY_COUNT; retryCount++) {
+            long uniqueId = UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE;
+            account.setId(uniqueId);
+
+            try {
+                return accountRepository.save(account);
+            } catch (DataIntegrityViolationException e) {
+                logger.error("Attempt {} to save account failed due to ID collision.", retryCount + 1, e);
+                if (retryCount == MAX_RETRY_COUNT - 1) {
+                    logger.error("Maximum retry limit reached. Unable to create account due to repeated ID collisions.");
+                    throw new RuntimeException("Failed to create account after " + MAX_RETRY_COUNT + " attempts due to ID collision.");
+                }
+            }
+        }
+
+        throw new RuntimeException("Account creation failed after retries.");
     }
 
     public Optional<Account> getAccount(Long id) {
