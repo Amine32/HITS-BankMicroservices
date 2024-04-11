@@ -11,7 +11,7 @@ public class TransactionConsumer {
 
     private final TransactionService transactionService;
 
-    @KafkaListener(topics = "${kafka.topic.transactions}", groupId = "${kafka.groupId}")
+    @KafkaListener(topics = "${spring.kafka.topic.transactions}", groupId = "${spring.kafka.groupId}")
     public void consume(TransactionMessage message) {
         transactionService.processTransactionMessage(message);
     }
