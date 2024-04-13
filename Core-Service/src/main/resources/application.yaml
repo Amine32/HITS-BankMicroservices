@@ -40,7 +40,7 @@ server:
   port: 8081
 
 jwt:
-  secret: 'very big secret'
+  secret: 'dmVyeWJpZ3NlY3JldHRoYXRpdHNoYWxsYmVzb2JpZ215ZGlja2h1cnRz'
 
 core:
   masterAccountId: 123456
