@@ -42,7 +42,7 @@ function ViewAccounts() {
                         <td>{account.ownerId}</td>
                         <td>{account.balance}</td>
                         <td>
-                            <button onClick={() => handleViewTransactions(account.id)}>View Transactions</button>
+                            <button className='app__button' onClick={() => handleViewTransactions(account.id)}>View Transactions</button>
                         </td>
                     </tr>
                 ))}

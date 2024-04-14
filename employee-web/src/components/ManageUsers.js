@@ -55,7 +55,7 @@ function ManageUsers() {
                 <h2>Manage Users</h2>
                 <Row className="justify-content-md-center">
                     <Col md="12" className="text-right mb-3">
-                        <Button variant="primary" size="lg" onClick={handleShowModal}>
+                        <Button className='app__button' size="lg" onClick={handleShowModal}>
                             <PlusCircleFill/> Create New User
                         </Button>
                     </Col>
@@ -76,7 +76,7 @@ function ManageUsers() {
                             <td>{user.role}</td>
                             <td>{user.isActive ? 'Blocked' : 'Active'}</td>
                             <td>
-                                <Button variant="warning" onClick={() => handleBlockToggle(user.id, user.isActive)}>
+                                <Button className='app__button' onClick={() => handleBlockToggle(user.id, user.isActive)}>
                                     {user.isActive ? 'Unblock' : 'Block'}
                                 </Button>
                             </td>

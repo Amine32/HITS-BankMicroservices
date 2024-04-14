@@ -32,10 +32,10 @@ function ApplyLoanModal({ show, onHide, loanRates, onLoanApplied }) {
 
     return (
         <Modal show={show} onHide={onHide}>
-            <Modal.Header closeButton>
+            <Modal.Header className='app__modal' closeButton>
                 <Modal.Title>Apply for a Loan</Modal.Title>
             </Modal.Header>
-            <Modal.Body>
+            <Modal.Body className='app__modal'>
                 <Form>
                     <Form.Group>
                         <Form.Label>Select Loan Type</Form.Label>
@@ -63,9 +63,9 @@ function ApplyLoanModal({ show, onHide, loanRates, onLoanApplied }) {
                     </Form.Group>
                 </Form>
             </Modal.Body>
-            <Modal.Footer>
-                <Button variant="secondary" onClick={onHide}>Close</Button>
-                <Button variant="primary" onClick={applyForLoan}>Apply</Button>
+            <Modal.Footer className='app__modal'>
+                <Button className='app__button' onClick={onHide}>Close</Button>
+                <Button className='app__button' onClick={applyForLoan}>Apply</Button>
             </Modal.Footer>
         </Modal>
     );

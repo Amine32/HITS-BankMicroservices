@@ -19,13 +19,13 @@ function OpenAccountModal({ show, onHide, onAccountCreated, onAlert }) {
 
     return (
         <Modal show={show} onHide={onHide}>
-            <Modal.Header closeButton>
+            <Modal.Header className='app__modal' closeButton>
                 <Modal.Title>Open New Account</Modal.Title>
             </Modal.Header>
-            <Modal.Body>Confirm to open a new account.</Modal.Body>
-            <Modal.Footer>
-                <Button variant="secondary" onClick={onHide}>Cancel</Button>
-                <Button variant="primary" onClick={handleOpenAccount}>Open Account</Button>
+            <Modal.Body className='app__modal'>Confirm to open a new account.</Modal.Body>
+            <Modal.Footer className='app__modal'>
+                <Button className='app__button' onClick={onHide}>Cancel</Button>
+                <Button className='app__button' onClick={handleOpenAccount}>Open Account</Button>
             </Modal.Footer>
         </Modal>
     );

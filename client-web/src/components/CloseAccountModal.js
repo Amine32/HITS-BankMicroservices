@@ -17,13 +17,13 @@ function CloseAccountModal({ account, show, onHide, onAccountClosed, onAlert }) 
 
     return (
         <Modal show={show} onHide={onHide}>
-            <Modal.Header closeButton>
+            <Modal.Header className='app__modal' closeButton>
                 <Modal.Title>Close Account</Modal.Title>
             </Modal.Header>
-            <Modal.Body>Confirm to close the account.</Modal.Body>
-            <Modal.Footer>
-                <Button variant="secondary" onClick={onHide}>Cancel</Button>
-                <Button variant="danger" onClick={handleCloseAccount}>Close Account</Button>
+            <Modal.Body className='app__modal'>Confirm to close the account.</Modal.Body>
+            <Modal.Footer className='app__modal'>
+                <Button className='app__button' onClick={onHide}>Cancel</Button>
+                <Button className='app__button' onClick={handleCloseAccount}>Close Account</Button>
             </Modal.Footer>
         </Modal>
     );

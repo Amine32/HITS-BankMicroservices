@@ -67,7 +67,7 @@ function ViewLoans() {
             <Card style={{width: '50rem', margin: '2rem auto'}}>
                 <Card.Header>
                     <strong>Rates</strong>
-                    <Button variant="primary" onClick={handleCreateRate} style={{float: 'right'}}>
+                    <Button className='app__button' onClick={handleCreateRate} style={{float: 'right'}}>
                         Create Rate
                     </Button>
                 </Card.Header>
@@ -88,7 +88,7 @@ function ViewLoans() {
                                 <td>{rate.interestRate}</td>
                                 <td>{rate.termLength}</td>
                                 <td>
-                                    <Button variant="primary" onClick={() => handleEditRate(rate)}>
+                                    <Button className='app__button' onClick={() => handleEditRate(rate)}>
                                         Edit
                                     </Button>
                                 </td>

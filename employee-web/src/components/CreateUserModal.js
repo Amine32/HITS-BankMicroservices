@@ -24,10 +24,10 @@ const CreateUserModal = ({ show, handleClose, handleShowToast, addUser }) => {
 
     return (
         <Modal show={show} onHide={handleClose}>
-            <Modal.Header closeButton>
+            <Modal.Header className='app__modal' closeButton>
                 <Modal.Title>Create New User</Modal.Title>
             </Modal.Header>
-            <Modal.Body>
+            <Modal.Body className='app__modal'>
                 <Form onSubmit={handleCreateUser}>
                     <Form.Group className="mb-3">
                         <Form.Label>Email</Form.Label>
@@ -54,7 +54,7 @@ const CreateUserModal = ({ show, handleClose, handleShowToast, addUser }) => {
                             <option value="EMPLOYEE">Employee</option>
                         </Form.Select>
                     </Form.Group>
-                    <Button variant="primary" type="submit">
+                    <Button className='app__button' variant="primary" type="submit">
                         Create User
                     </Button>
                 </Form>

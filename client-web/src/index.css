@@ -11,3 +11,25 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+html[data-theme='dark'] {
+  --button-text-color: #ffffff;
+  --button-background-color: #4e005c;
+  --button-border-color: #ba8fc2;
+
+  --text-color: #ffffff;
+  --background-color: #292929;
+  --background-color2: #201d1e;
+  --icon-color: #ba8fc2;
+}
+
+html[data-theme='light'] {
+  --button-text-color: #252525;
+  --button-background-color: #f9d4ff;
+  --button-border-color: #4e005c;
+
+  --text-color: #252525;
+  --background-color: #dfdfdf;
+  --background-color2: #b6aab6;
+  --icon-color: #4e005c;
+}

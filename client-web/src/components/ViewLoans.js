@@ -68,14 +68,14 @@ function ViewLoans() {
                         <td>${loan.amountOwed.toFixed(2)}</td>
                         <td>${loan.dailyPayment.toFixed(2)}</td>
                         <td>
-                            <Button variant="success" onClick={() => payOffLoan(loan.id)}>Pay Off</Button>
+                            <Button className='app__button' onClick={() => payOffLoan(loan.id)}>Pay Off</Button>
                         </td>
                     </tr>
                 ))}
                 </tbody>
             </Table>
 
-            <Button variant="primary" onClick={() => setShowApplyLoanModal(true)}>
+            <Button className='app__button' onClick={() => setShowApplyLoanModal(true)}>
                 Apply for New Loan
             </Button>
 

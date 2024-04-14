@@ -23,10 +23,10 @@ function DepositModal({account, show, onHide, onDeposit, onAlert}) {
 
     return (
         <Modal show={show} onHide={onHide}>
-            <Modal.Header closeButton>
+            <Modal.Header className='app__modal' closeButton>
                 <Modal.Title>Deposit Money</Modal.Title>
             </Modal.Header>
-            <Modal.Body>
+            <Modal.Body className='app__modal'>
                 <Form>
                     <Form.Group>
                         <Form.Label>Amount</Form.Label>
@@ -39,9 +39,9 @@ function DepositModal({account, show, onHide, onDeposit, onAlert}) {
                     </Form.Group>
                 </Form>
             </Modal.Body>
-            <Modal.Footer>
-                <Button variant="secondary" onClick={onHide}>Cancel</Button>
-                <Button variant="primary" onClick={handleDeposit}>Deposit</Button>
+            <Modal.Footer className='app__modal'>
+                <Button className='app__button' onClick={onHide}>Cancel</Button>
+                <Button className='app__button' onClick={handleDeposit}>Deposit</Button>
             </Modal.Footer>
         </Modal>
     );

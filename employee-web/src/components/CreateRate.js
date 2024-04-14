@@ -45,10 +45,10 @@ function CreateRate({ show, onHide, onRateCreated }) {
 
     return (
         <Modal show={show} onHide={() => { resetForm(); onHide(); }}>
-            <Modal.Header closeButton>
+            <Modal.Header className='app__modal' closeButton>
                 <Modal.Title>Create New Rate</Modal.Title>
             </Modal.Header>
-            <Modal.Body>
+            <Modal.Body className='app__modal'>
                 {error && <Alert variant="danger">{error}</Alert>}
                 {success && <Alert variant="success">{success}</Alert>}
                 <Form onSubmit={handleSubmit}>
@@ -80,7 +80,7 @@ function CreateRate({ show, onHide, onRateCreated }) {
                             placeholder="Enter term length in days"
                         />
                     </Form.Group>
-                    <Button variant="primary" type="submit">
+                    <Button className='app__button' type="submit">
                         Create Rate
                     </Button>
                 </Form>

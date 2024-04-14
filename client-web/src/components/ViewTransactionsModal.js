@@ -18,11 +18,11 @@ function ViewTransactionsModal({ account, show, onHide }) {
     }, [show, account.id]);
 
     return (
-        <Modal show={show} onHide={onHide} size="lg">
-            <Modal.Header closeButton>
+        <Modal show={show} onHide={onHide} size="lg" >
+            <Modal.Header className='app__modal' closeButton>
                 <Modal.Title>Transaction History for Account {account.id}</Modal.Title>
             </Modal.Header>
-            <Modal.Body>
+            <Modal.Body className='app__modal'>
                 <Table striped bordered hover>
                     <thead>
                     <tr>
@@ -42,8 +42,8 @@ function ViewTransactionsModal({ account, show, onHide }) {
                     </tbody>
                 </Table>
             </Modal.Body>
-            <Modal.Footer>
-                <Button variant="secondary" onClick={onHide}>Close</Button>
+            <Modal.Footer className='app__modal'>
+                <Button className='app__button' onClick={onHide}>Close</Button>
             </Modal.Footer>
         </Modal>
     );

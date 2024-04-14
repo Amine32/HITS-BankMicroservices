@@ -68,7 +68,7 @@ function ViewAccounts() {
             )}
 
             <Button
-                variant="success"
+                className='app__button mt-2'
                 onClick={() => handleModalShow('openAccount')}
             >
                 Open New Account
@@ -91,13 +91,13 @@ function ViewAccounts() {
                             <div className="d-flex justify-content-between">
                                 <div>
                                     <Button
-                                        variant="primary"
+                                        className='app__button'
                                         onClick={() => handleModalShow('deposit', account)}
                                     >
                                         Deposit
                                     </Button>{'  '}
                                     <Button
-                                        variant="warning"
+                                        className='app__button'
                                         onClick={() => handleModalShow('withdraw', account)}
                                     >
                                         Withdraw
@@ -105,13 +105,13 @@ function ViewAccounts() {
                                 </div>
                                 <div>
                                     <Button
-                                        variant="info"
+                                        className='app__button'
                                         onClick={() => handleModalShow('transactions', account)}
                                     >
                                         View Transactions
                                     </Button>{' '}
                                     <Button
-                                        variant="danger"
+                                        className='app__button'
                                         onClick={() => handleModalShow('closeAccount', account)}
                                     >
                                         Close Account

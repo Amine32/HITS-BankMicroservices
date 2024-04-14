@@ -38,10 +38,10 @@ const EditRate = ({ rate, show, onHide, handleShowToast, updateRate }) => {
 
     return (
         <Modal show={show} onHide={onHide}>
-            <Modal.Header closeButton>
+            <Modal.Header className='app__modal' closeButton>
                 <Modal.Title>Edit Rate</Modal.Title>
             </Modal.Header>
-            <Modal.Body>
+            <Modal.Body className='app__modal'>
                 <Form onSubmit={handleUpdateRate}>
                     <Form.Group className="mb-3">
                         <Form.Label>Name</Form.Label>
@@ -70,7 +70,7 @@ const EditRate = ({ rate, show, onHide, handleShowToast, updateRate }) => {
                             onChange={e => setTermLength(e.target.value)}
                         />
                     </Form.Group>
-                    <Button variant="primary" type="submit">
+                    <Button className='app__modal' type="submit">
                         Update Rate
                     </Button>
                 </Form>
