@@ -1,12 +1,12 @@
 import React from 'react';
 import { Modal, Button } from 'react-bootstrap';
-import axios from 'axios';
+import { instance } from '../api/instance';
 
 function OpenAccountModal({ show, onHide, onAccountCreated, onAlert }) {
     const ownerId = sessionStorage.getItem('userId'); // Or fetch from context/global state
 
     const handleOpenAccount = () => {
-        axios.post(`http://localhost:8080/core/api/accounts/${ownerId}`)
+        instance.post(`http://localhost:8080/core/api/accounts/${ownerId}`)
             .then(() => {
                 onAccountCreated();
                 onAlert('Account created successfully!', 'success');

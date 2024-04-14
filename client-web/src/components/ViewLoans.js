@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import {Button, Table} from 'react-bootstrap';
-import axios from 'axios';
+import { instance } from '../api/instance';
 import ApplyLoanModal from './ApplyLoanModal';
 
 function ViewLoans() {
@@ -17,7 +17,7 @@ function ViewLoans() {
         // Endpoint to fetch loans for the customer
         const ownerId = sessionStorage.getItem('userId');
         if (ownerId) {
-            axios.get(`http://localhost:8080/loan/api/loans/user/${ownerId}`, {withCredentials: true})
+            instance.get(`http://localhost:8080/loan/api/loans/user/${ownerId}`, {withCredentials: true})
                 .then(response => {
                     setLoans(response.data);
                 })
@@ -28,7 +28,7 @@ function ViewLoans() {
     };
 
     const fetchLoanRates = () => {
-        axios.get('http://localhost:8080/loan/api/rates/all', {withCredentials: true})
+        instance.get('http://localhost:8080/loan/api/rates/all', {withCredentials: true})
             .then(response => {
                 const sortedLoanRates = response.data.sort((a, b) => a.id - b.id);
                 setLoanRates(sortedLoanRates);
@@ -39,7 +39,7 @@ function ViewLoans() {
     };
 
     const payOffLoan = (loanId) => {
-        axios.post(`http://localhost:8080/loan/api/loans/payoff/${loanId}`, {withCredentials: true})
+        instance.post(`http://localhost:8080/loan/api/loans/payoff/${loanId}`, {withCredentials: true})
             .then(response => {
                 if (response.status === 200) {
                     fetchLoans(); // Refresh the loans list after successful payoff

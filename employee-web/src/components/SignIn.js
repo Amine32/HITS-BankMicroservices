@@ -25,6 +25,7 @@ function SignIn() {
             withCredentials: true
         })
             .then(response => {
+                sessionStorage.setItem('authToken', response.data);
                 setLoading(false);
                 navigate('/manage-users');
             })

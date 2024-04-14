@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { Card, Form, Button, Alert, Spinner } from 'react-bootstrap';
 import { useNavigate } from "react-router-dom";
+import decodeJWTAndSave from "../helper/jwtDecode"
 
 function SignIn() {
     const [email, setEmail] = useState('');
@@ -10,6 +11,7 @@ function SignIn() {
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
+    console.log(sessionStorage.getItem("userId"));
     const handleSubmit = (event) => {
         event.preventDefault();
         setLoading(true);
@@ -25,8 +27,9 @@ function SignIn() {
             withCredentials: true
         })
             .then(response => {
+                sessionStorage.setItem('authToken', response.data.token); 
                 setLoading(false);
-                sessionStorage.setItem('userId', response.data.id);
+                decodeJWTAndSave(response.data.token);
                 // Based on response structure; redirect as necessary
                 navigate('/view-accounts');
             })

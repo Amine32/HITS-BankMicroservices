@@ -1,10 +1,10 @@
 import React from 'react';
 import { Modal, Button } from 'react-bootstrap';
-import axios from 'axios';
+import { instance } from '../api/instance';
 
 function CloseAccountModal({ account, show, onHide, onAccountClosed, onAlert }) {
     const handleCloseAccount = () => {
-        axios.delete(`http://localhost:8080/core/api/accounts/${account.id}`)
+        instance.delete(`http://localhost:8080/core/api/accounts/${account.id}`)
             .then(() => {
                 onAccountClosed();
                 onAlert('Account closed successfully!', 'success');

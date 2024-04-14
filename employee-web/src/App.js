@@ -19,7 +19,12 @@ function App() {
     setTheme("dark");
   };
 
-  const isAuthenticated = true; //sessionStorage.getItem('authToken'); // You can refine this check based on your auth logic
+  var isAuthenticated = false; 
+  if (sessionStorage.getItem('authToken') != null){
+    isAuthenticated = true;
+  } else {
+    isAuthenticated = false;
+  } // You can refine this check based on your auth logic
 
   return (
     <Router>

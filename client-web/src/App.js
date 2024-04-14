@@ -5,19 +5,25 @@ import ViewAccounts from "./components/ViewAccounts";
 import ViewLoans from "./components/ViewLoans";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Navbar, Nav, Container } from "react-bootstrap";
-import { useTheme } from './hooks/use-theme'
-import './App.css';
+import { useTheme } from "./hooks/use-theme";
+import "./App.css";
 
 function App() {
-    const { theme, setTheme } = useTheme()
+  const { theme, setTheme } = useTheme();
 
-    const handleLightThemeClick = () => {
-      setTheme('light')
-    }
-    const handleDarkThemeClick = () => {
-      setTheme('dark')
-    }
-  const isAuthenticated = true; //sessionStorage.getItem('authToken'); // You can refine this check based on your auth logic
+  const handleLightThemeClick = () => {
+    setTheme("light");
+  };
+  const handleDarkThemeClick = () => {
+    setTheme("dark");
+  };
+
+  var isAuthenticated = false; //sessionStorage.getItem('authToken'); // You can refine this check based on your auth logic
+  if (sessionStorage.getItem("authToken") != null) {
+    isAuthenticated = true;
+  } else {
+    isAuthenticated = false;
+  }
 
   return (
     <Router>
@@ -38,10 +44,18 @@ function App() {
                     View Loans
                   </Nav.Link>
                   <div className="btn-group ms-3" role="group">
-                    <button type="button" className="btn btn-outline-info" onClick={handleLightThemeClick}>
+                    <button
+                      type="button"
+                      className="btn btn-outline-info"
+                      onClick={handleLightThemeClick}
+                    >
                       Light
                     </button>
-                    <button type="button" className="btn btn-outline-primary" onClick={handleDarkThemeClick}>
+                    <button
+                      type="button"
+                      className="btn btn-outline-primary"
+                      onClick={handleDarkThemeClick}
+                    >
                       Dark
                     </button>
                   </div>

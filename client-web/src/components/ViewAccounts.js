@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {Alert, Button, Table} from 'react-bootstrap';
-import axios from 'axios';
+import { instance } from '../api/instance';
 import WithdrawModal from './WithdrawModal';
 import DepositModal from './DepositModal';
 import OpenAccountModal from "./OpenAccountModal";
@@ -26,7 +26,7 @@ function ViewAccounts() {
     const fetchAccounts = () => {
         const ownerId = sessionStorage.getItem('userId');
         if (ownerId) {
-            axios.get(`http://localhost:8080/core/api/accounts/user/${ownerId}`, {withCredentials: true})
+            instance.get(`http://localhost:8080/core/api/accounts/user/${ownerId}`, {withCredentials: true})
                 .then(response => {
                     const sortedAccounts = response.data.sort((a, b) => a.id - b.id);
                     setAccounts(sortedAccounts);

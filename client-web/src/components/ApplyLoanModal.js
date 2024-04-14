@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, Button, Form, Dropdown } from 'react-bootstrap';
-import axios from "axios";
+import { instance } from '../api/instance';
 
 function ApplyLoanModal({ show, onHide, loanRates, onLoanApplied }) {
     const [selectedRate, setSelectedRate] = useState('');
@@ -15,7 +15,7 @@ function ApplyLoanModal({ show, onHide, loanRates, onLoanApplied }) {
             amount: amount
         };
 
-        axios.post('http://localhost:8080/loan/api/loans', loanData, {
+        instance.post('http://localhost:8080/loan/api/loans', loanData, {
             headers: {
                 'Content-Type': 'application/json'
             },

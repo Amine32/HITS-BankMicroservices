@@ -1,12 +1,12 @@
 import React, {useState} from 'react';
 import {Modal, Button, Form} from 'react-bootstrap';
-import axios from 'axios';
+import { instance } from '../api/instance';
 
 function WithdrawModal({account, show, onHide, onWithdraw, onAlert}) {
     const [amount, setAmount] = useState('');
 
     const handleWithdraw = () => {
-        axios.post(`http://localhost:8080/core/api/accounts/${account.id}/withdraw`, parseFloat(amount), {
+        instance.post(`http://localhost:8080/core/api/accounts/${account.id}/withdraw`, parseFloat(amount), {
             headers: {
                 'Content-Type': 'application/json'
             }

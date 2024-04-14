@@ -1,12 +1,12 @@
 import React, {useState} from 'react';
 import {Modal, Button, Form} from 'react-bootstrap';
-import axios from 'axios';
+import { instance } from '../api/instance';
 
 function DepositModal({account, show, onHide, onDeposit, onAlert}) {
     const [amount, setAmount] = useState('');
 
     const handleDeposit = () => {
-        axios.post(`http://localhost:8080/core/api/accounts/${account.id}/deposit`, parseFloat(amount), {
+        instance.post(`http://localhost:8080/core/api/accounts/${account.id}/deposit`, parseFloat(amount), {
             headers: {
                 'Content-Type': 'application/json'
             }
