@@ -26,6 +26,6 @@ server:
   port: 8083
 
 jwt:
-  secret: 'very big secret'
+  secret: 'dmVyeWJpZ3NlY3JldHRoYXRpdHNoYWxsYmVzb2JpZ215ZGlja2h1cnRz'
   expiration:
     ms: 604800000
