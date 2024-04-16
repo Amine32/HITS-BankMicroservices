@@ -73,7 +73,7 @@ public class AccountController {
     }
 
     @GetMapping("/primary/{userId}")
-    @PreAuthorize("#userId == authentication.principal.id or hasAuthority('EMPLOYEE')")
+    @PreAuthorize("hasRole('TRUSTED_SERVICE') or hasAuthority('EMPLOYEE')")
     public ResponseEntity<Long> getPrimaryAccountId(@PathVariable Long userId) {
         Long accountId = accountService.getPrimaryAccountId(userId);
         return ResponseEntity.ok(accountId);
@@ -96,12 +96,14 @@ public class AccountController {
     }
 
     @PostMapping("/transfer/from-master/{toAccountId}")
+    @PreAuthorize("hasRole('TRUSTED_SERVICE')")
     public ResponseEntity<?> transferFromMaster(@PathVariable Long toAccountId, @RequestBody BigDecimal amount) {
         accountService.transferFromMasterAccount(toAccountId, amount);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/transfer/to-master/{fromAccountId}")
+    @PreAuthorize("hasRole('TRUSTED_SERVICE')")
     public ResponseEntity<?> transferToMaster(@PathVariable Long fromAccountId, @RequestBody BigDecimal amount) {
         accountService.transferToMasterAccount(fromAccountId, amount);
         return ResponseEntity.ok().build();
