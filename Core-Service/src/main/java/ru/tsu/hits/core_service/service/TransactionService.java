@@ -20,7 +20,7 @@ public class TransactionService {
     private final SimpMessagingTemplate messagingTemplate;
     private final TransactionProducer transactionProducer;
 
-    public void recordTransaction(Long accountId, BigDecimal amount, TransactionType type) {
+    public void recordTransaction(String accountId, BigDecimal amount, TransactionType type) {
         TransactionMessage message = new TransactionMessage(accountId, amount, type.toString());
         transactionProducer.sendTransactionMessage(message);
     }

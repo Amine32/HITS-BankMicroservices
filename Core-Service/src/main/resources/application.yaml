@@ -45,5 +45,5 @@ jwt:
   secret: 'dmVyeWJpZ3NlY3JldHRoYXRpdHNoYWxsYmVzb2JpZ215ZGlja2h1cnRz'
 
 core:
-  masterAccountId: 123456
+  masterAccountId: '123456'
 

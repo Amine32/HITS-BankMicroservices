@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor //for kafka deserialization
 public class TransactionMessage implements Serializable {
-    private Long accountId;
+    private String accountId;
     private BigDecimal amount;
     private String transactionType;
 }
