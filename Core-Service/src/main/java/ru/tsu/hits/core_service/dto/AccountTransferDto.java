@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 @Data
 @AllArgsConstructor
 public class AccountTransferDto {
-    private Long fromAccountId;
-    private Long toAccountId;
+    private String fromAccountId;
+    private String toAccountId;
     private BigDecimal amount;
 }

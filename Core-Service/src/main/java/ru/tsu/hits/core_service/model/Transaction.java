@@ -20,7 +20,7 @@ public class Transaction {
     private Long id;
 
     @Column(nullable = false)
-    private Long accountId;
+    private String accountId;
 
     @Enumerated(EnumType.STRING)
     private TransactionType transactionType;

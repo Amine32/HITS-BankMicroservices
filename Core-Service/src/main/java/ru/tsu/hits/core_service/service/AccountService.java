@@ -33,7 +33,7 @@ public class AccountService {
     private static final int MAX_RETRY_COUNT = 5;
 
     @Value("${core.masterAccountId}")
-    private Long masterAccountId;
+    private String masterAccountId;
 
     public Account createAccount(Long ownerId, Currency currency) {
         Account account = new Account();
@@ -44,7 +44,7 @@ public class AccountService {
         account.setCurrency(currency != null ? currency : Currency.RUB);
 
         for (int retryCount = 0; retryCount < MAX_RETRY_COUNT; retryCount++) {
-            long uniqueId = UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE;
+            String uniqueId = UUID.randomUUID().toString();
             account.setId(uniqueId);
 
             try {
@@ -61,7 +61,7 @@ public class AccountService {
         throw new RuntimeException("Account creation failed after retries.");
     }
 
-    public Optional<Account> getAccount(Long id) {
+    public Optional<Account> getAccount(String id) {
         return accountRepository.findById(id);
     }
 
@@ -69,11 +69,11 @@ public class AccountService {
         return accountRepository.save(account);
     }
 
-    public void deleteAccount(Long id) {
+    public void deleteAccount(String id) {
         accountRepository.deleteById(id);
     }
 
-    public Account depositMoney(Long id, BigDecimal amount) {
+    public Account depositMoney(String id, BigDecimal amount) {
         Account account = accountRepository.findById(id).orElseThrow(() -> new RuntimeException("Account not found"));
         account.setBalance(account.getBalance().add(amount));
 
@@ -82,7 +82,7 @@ public class AccountService {
         return accountRepository.save(account);
     }
 
-    public Account withdrawMoney(Long id, BigDecimal amount) {
+    public Account withdrawMoney(String id, BigDecimal amount) {
         Account account = accountRepository.findById(id).orElseThrow(() -> new RuntimeException("Account not found"));
 
         if (account.getBalance().compareTo(amount) < 0) {
@@ -99,7 +99,7 @@ public class AccountService {
         return accountRepository.findAllByOwnerId(userId);
     }
 
-    public Long getPrimaryAccountId(Long userId) {
+    public String getPrimaryAccountId(Long userId) {
         List<Account> accounts = accountRepository.findAllByOwnerId(userId)
                 .stream()
                 .filter(account -> Currency.RUB.equals(account.getCurrency())) // Filter only RUB accounts
@@ -115,7 +115,7 @@ public class AccountService {
         return accountRepository.findAll();
     }
 
-    public boolean isUserAccountOwner(Long accountId, Long userId) {
+    public boolean isUserAccountOwner(String accountId, Long userId) {
         return accountRepository.findByIdAndOwnerId(accountId, userId).isPresent();
     }
 
@@ -154,7 +154,7 @@ public class AccountService {
     }
 
     @Transactional
-    public void transferFromMasterAccount(Long toAccountId, BigDecimal amount) {
+    public void transferFromMasterAccount(String toAccountId, BigDecimal amount) {
         Account masterAccount = findMasterAccount();
 
         if (masterAccount.getBalance().compareTo(amount) < 0) {
@@ -175,7 +175,7 @@ public class AccountService {
     }
 
     @Transactional
-    public void transferToMasterAccount(Long fromAccountId, BigDecimal amount) {
+    public void transferToMasterAccount(String fromAccountId, BigDecimal amount) {
         Account fromAccount = accountRepository.findById(fromAccountId)
                 .orElseThrow(() -> new RuntimeException("Source account not found"));
         Account masterAccount = findMasterAccount();

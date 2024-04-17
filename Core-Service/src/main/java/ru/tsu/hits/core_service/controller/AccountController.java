@@ -30,14 +30,14 @@ public class AccountController {
 
     @GetMapping("/{id}")
     @PreAuthorize("@accountService.isUserAccountOwner(#id,authentication.principal.userId) or hasAuthority('EMPLOYEE')")
-    public ResponseEntity<Account> getAccount(@PathVariable Long id) {
+    public ResponseEntity<Account> getAccount(@PathVariable String id) {
         Optional<Account> account = accountService.getAccount(id);
         return account.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("@accountService.isUserAccountOwner(#id,authentication.principal.userId) or hasAuthority('EMPLOYEE')")
-    public ResponseEntity<Account> updateAccount(@PathVariable Long id, @RequestBody Account account) {
+    public ResponseEntity<Account> updateAccount(@PathVariable String id, @RequestBody Account account) {
         if (!id.equals(account.getId())) {
             return ResponseEntity.badRequest().build();
         }
@@ -46,21 +46,21 @@ public class AccountController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("@accountService.isUserAccountOwner(#id,authentication.principal.userId) or hasAuthority('EMPLOYEE')")
-    public ResponseEntity<Void> deleteAccount(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteAccount(@PathVariable String id) {
         accountService.deleteAccount(id);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/{id}/deposit")
     @PreAuthorize("@accountService.isUserAccountOwner(#id,authentication.principal.userId)")
-    public ResponseEntity<Account> depositMoney(@PathVariable Long id, @RequestBody BigDecimal amount) {
+    public ResponseEntity<Account> depositMoney(@PathVariable String id, @RequestBody BigDecimal amount) {
         Account account = accountService.depositMoney(id, amount);
         return ResponseEntity.ok(account);
     }
 
     @PostMapping("/{id}/withdraw")
     @PreAuthorize("@accountService.isUserAccountOwner(#id, authentication.principal.userId)")
-    public ResponseEntity<Account> withdrawMoney(@PathVariable Long id, @RequestBody BigDecimal amount) {
+    public ResponseEntity<Account> withdrawMoney(@PathVariable String id, @RequestBody BigDecimal amount) {
         Account account = accountService.withdrawMoney(id, amount);
         return ResponseEntity.ok(account);
     }
@@ -74,8 +74,8 @@ public class AccountController {
 
     @GetMapping("/primary/{userId}")
     @PreAuthorize("hasRole('TRUSTED_SERVICE') or hasAuthority('EMPLOYEE')")
-    public ResponseEntity<Long> getPrimaryAccountId(@PathVariable Long userId) {
-        Long accountId = accountService.getPrimaryAccountId(userId);
+    public ResponseEntity<String> getPrimaryAccountId(@PathVariable Long userId) {
+        String accountId = accountService.getPrimaryAccountId(userId);
         return ResponseEntity.ok(accountId);
     }
 
@@ -97,14 +97,14 @@ public class AccountController {
 
     @PostMapping("/transfer/from-master/{toAccountId}")
     @PreAuthorize("hasRole('TRUSTED_SERVICE')")
-    public ResponseEntity<?> transferFromMaster(@PathVariable Long toAccountId, @RequestBody BigDecimal amount) {
+    public ResponseEntity<?> transferFromMaster(@PathVariable String toAccountId, @RequestBody BigDecimal amount) {
         accountService.transferFromMasterAccount(toAccountId, amount);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/transfer/to-master/{fromAccountId}")
     @PreAuthorize("hasRole('TRUSTED_SERVICE')")
-    public ResponseEntity<?> transferToMaster(@PathVariable Long fromAccountId, @RequestBody BigDecimal amount) {
+    public ResponseEntity<?> transferToMaster(@PathVariable String fromAccountId, @RequestBody BigDecimal amount) {
         accountService.transferToMasterAccount(fromAccountId, amount);
         return ResponseEntity.ok().build();
     }
