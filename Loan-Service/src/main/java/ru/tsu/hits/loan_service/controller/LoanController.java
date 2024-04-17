@@ -32,7 +32,7 @@ public class LoanController {
     }
 
     @GetMapping("/user/{userId}")
-    @PreAuthorize("#userId == authentication.principal.id or hasAuthority('EMPLOYEE')")
+    @PreAuthorize("#userId == authentication.principal.userId or hasAuthority('EMPLOYEE')")
     public ResponseEntity<List<Loan>> getLoansByUser(@PathVariable Long userId) {
         List<Loan> loans = loanService.getLoansByOwner(userId);
         return ResponseEntity.ok(loans);
@@ -51,14 +51,14 @@ public class LoanController {
     }
 
     @GetMapping("/user/{userId}/overdue")
-    @PreAuthorize("#userId == authentication.principal.id or hasAuthority('EMPLOYEE')")
+    @PreAuthorize("#userId == authentication.principal.userId or hasAuthority('EMPLOYEE')")
     public ResponseEntity<List<Loan>> getOverdueLoansByUser(@PathVariable Long userId) {
         List<Loan> loans = loanService.getOverdueLoansByUser(userId);
         return ResponseEntity.ok(loans);
     }
 
     @GetMapping("/user/{userId}/credit-rating")
-    @PreAuthorize("#userId == authentication.principal.id or hasAuthority('EMPLOYEE')")
+    @PreAuthorize("#userId == authentication.principal.userId or hasAuthority('EMPLOYEE')")
     public ResponseEntity<BigDecimal> getCreditRating(@PathVariable Long userId) {
         BigDecimal creditRating = loanService.calculateCreditRating(userId);
         return ResponseEntity.ok(creditRating);

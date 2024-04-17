@@ -40,6 +40,11 @@ public class JwtUtil {
         return Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token).getBody().getSubject();
     }
 
+    public Long getUserIdFromJwtToken(String token) {
+        Claims claims = Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token).getBody();
+        return claims.get("userId", Long.class);  // Extract the user ID claim
+    }
+
     public List<SimpleGrantedAuthority> getAuthoritiesFromJwtToken(String token) {
         Jws<Claims> claims = Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())

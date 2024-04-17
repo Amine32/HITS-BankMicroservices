@@ -66,7 +66,7 @@ public class AccountController {
     }
 
     @GetMapping("/user/{userId}")
-    @PreAuthorize("#userId == authentication.principal.id or hasAuthority('EMPLOYEE')")
+    @PreAuthorize("#userId == authentication.principal.userId or hasAuthority('EMPLOYEE')")
     public ResponseEntity<List<Account>> getUserAccounts(@PathVariable Long userId) {
         List<Account> accounts = accountService.getUserAccounts(userId);
         return ResponseEntity.ok(accounts);
