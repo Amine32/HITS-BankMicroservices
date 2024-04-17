@@ -19,7 +19,7 @@ public class TransactionController {
     private final TransactionService transactionService;
 
     @GetMapping("/{accountId}")
-    public ResponseEntity<List<Transaction>> getTransactions(@PathVariable Long accountId) {
+    public ResponseEntity<List<Transaction>> getTransactions(@PathVariable String accountId) {
         List<Transaction> transactions = transactionService.getTransactionsByAccountId(accountId);
         return ResponseEntity.ok(transactions);
     }

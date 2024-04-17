@@ -25,7 +25,7 @@ public class TransactionService {
         transactionProducer.sendTransactionMessage(message);
     }
 
-    public List<Transaction> getTransactionsByAccountId(Long accountId) {
+    public List<Transaction> getTransactionsByAccountId(String accountId) {
         return transactionRepository.findAllByAccountId(accountId);
     }
 
