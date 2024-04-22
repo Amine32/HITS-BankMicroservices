@@ -77,7 +77,7 @@ public class AccountService {
         Account account = accountRepository.findById(id).orElseThrow(() -> new RuntimeException("Account not found"));
         account.setBalance(account.getBalance().add(amount));
 
-        transactionService.recordTransaction(account.getId(), amount, TransactionType.DEPOSIT);
+        transactionService.recordTransaction(account.getId(), account.getOwnerId(), amount, TransactionType.DEPOSIT);
 
         return accountRepository.save(account);
     }
@@ -90,7 +90,7 @@ public class AccountService {
         }
         account.setBalance(account.getBalance().subtract(amount));
 
-        transactionService.recordTransaction(account.getId(), amount.negate(), TransactionType.WITHDRAWAL);
+        transactionService.recordTransaction(account.getId(), account.getOwnerId(), amount.negate(), TransactionType.WITHDRAWAL);
 
         return accountRepository.save(account);
     }
@@ -149,8 +149,8 @@ public class AccountService {
         accountRepository.save(toAccount);
 
         // Record the transactions
-        transactionService.recordTransaction(fromAccount.getId(), transferDto.getAmount().negate(), TransactionType.TRANSFER);
-        transactionService.recordTransaction(toAccount.getId(), transferDto.getAmount(), TransactionType.TRANSFER);
+        transactionService.recordTransaction(fromAccount.getId(), fromAccount.getOwnerId(), transferDto.getAmount().negate(), TransactionType.TRANSFER);
+        transactionService.recordTransaction(toAccount.getId(), toAccount.getOwnerId(), transferDto.getAmount(), TransactionType.TRANSFER);
     }
 
     @Transactional
@@ -171,7 +171,8 @@ public class AccountService {
         accountRepository.save(toAccount);
 
         // Record the transaction from master to client account
-        transactionService.recordTransaction(masterAccount.getId(), amount.negate(), TransactionType.TRANSFER);
+        transactionService.recordTransaction(masterAccount.getId(), masterAccount.getOwnerId(), amount.negate(), TransactionType.TRANSFER);
+        transactionService.recordTransaction(toAccount.getId(), toAccount.getOwnerId(), amount, TransactionType.LOAN);
     }
 
     @Transactional
@@ -190,7 +191,8 @@ public class AccountService {
         accountRepository.save(fromAccount);
         accountRepository.save(masterAccount);
 
-        transactionService.recordTransaction(masterAccount.getId(), amount, TransactionType.TRANSFER);
+        transactionService.recordTransaction(masterAccount.getId(), masterAccount.getOwnerId(), amount, TransactionType.TRANSFER);
+        transactionService.recordTransaction(fromAccount.getId(), fromAccount.getOwnerId(), amount, TransactionType.LOAN_PAYMENT);
     }
 
     public Account findMasterAccount() {

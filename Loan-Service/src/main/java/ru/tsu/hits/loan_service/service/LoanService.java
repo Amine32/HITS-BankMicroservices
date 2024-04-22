@@ -44,7 +44,6 @@ public class LoanService {
 
         Long primaryAccountId = coreServiceClient.getPrimaryAccountId(application.getOwnerId());
         coreServiceClient.transferFromMasterAccount(primaryAccountId, application.getAmount());
-        coreServiceClient.postTransaction(primaryAccountId, application.getAmount(), "LOAN");
 
         return loanRepository.save(loan);
     }
@@ -73,7 +72,6 @@ public class LoanService {
 
         Long primaryAccountId = coreServiceClient.getPrimaryAccountId(loan.getOwnerId());
         coreServiceClient.transferToMasterAccount(primaryAccountId, amount);
-        coreServiceClient.postTransaction(primaryAccountId, amount, "LOAN_PAYMENT");
 
         paymentService.createPayment(Payment.builder()
                 .loan(loan)
