@@ -2,6 +2,7 @@ package ru.tsu.hits.loan_service.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ru.tsu.hits.loan_service.dto.LoanRateDto;
 import ru.tsu.hits.loan_service.model.LoanRate;
@@ -15,9 +16,9 @@ import java.util.Optional;
 public class LoanRateService {
 
     private final LoanRateRepository loanRateRepository;
+    private final IdempotencyCacheService idempotencyCacheService;
 
-    @Transactional
-    public LoanRate createLoanRate(LoanRateDto loanRateDto) {
+    private LoanRate createLoanRate(LoanRateDto loanRateDto) {
         LoanRate loanRate = LoanRate.builder()
                 .name(loanRateDto.getName())
                 .interestRate(loanRateDto.getInterestRate())
@@ -54,5 +55,16 @@ public class LoanRateService {
     @Transactional
     public void deleteLoanRate(Long id) {
         loanRateRepository.deleteById(id);
+    }
+
+    public ResponseEntity<LoanRate> createLoanRateWithIdempotency(LoanRateDto loanRateDto, String idempotencyKey) {
+        Object existingResponse = idempotencyCacheService.getResponse(idempotencyKey);
+        if (existingResponse != null) {
+            return ResponseEntity.ok((LoanRate) existingResponse);
+        }
+
+        LoanRate loanRate = createLoanRate(loanRateDto); // Actual creation logic
+        idempotencyCacheService.storeResponse(idempotencyKey, loanRate);
+        return ResponseEntity.ok(loanRate);
     }
 }

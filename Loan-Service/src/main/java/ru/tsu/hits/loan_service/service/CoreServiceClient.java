@@ -15,19 +15,6 @@ public class CoreServiceClient {
 
     private final String coreServiceUrl = "http://localhost:8080/core/api";
 
-    public void postTransaction(Long accountId, BigDecimal amount, String transactionType) {
-        AccountTransactionDto transactionDto = new AccountTransactionDto(accountId, amount, transactionType);
-
-        webClientBuilder.build()
-                .post()
-                .uri(coreServiceUrl + "/transactions")
-                .header("Service-Name", "Loan-Service")
-                .bodyValue(transactionDto)
-                .retrieve()
-                .bodyToMono(Void.class)
-                .block();
-    }
-
     public void transferFromMasterAccount(Long toAccountId, BigDecimal amount) {
         webClientBuilder.build()
                 .post()

@@ -20,9 +20,8 @@ public class UserPreferenceController {
     }
 
     @PostMapping("/{userId}")
-    public ResponseEntity<UserPreference> updateUserPreferences(@PathVariable Long userId, @RequestBody UserPreference preferences) {
-        UserPreference updatedPreferences = userPreferenceService.saveUserPreferences(userId, preferences.getTheme(), preferences.getHiddenAccountIds());
-        return ResponseEntity.ok(updatedPreferences);
+    public ResponseEntity<UserPreference> updateUserPreferences(@PathVariable Long userId, @RequestBody UserPreference preferences, @RequestHeader("Idempotency-Key") String idempotencyKey) {
+        return userPreferenceService.updateUserPreferencesWithIdempotency(userId, preferences, idempotencyKey);
     }
 }
 

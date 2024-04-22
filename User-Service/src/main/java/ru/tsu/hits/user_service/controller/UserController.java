@@ -31,9 +31,8 @@ public class UserController {
     private final AuthenticationManager authenticationManager;
 
     @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody CreateUpdateUserDto createUserDto) {
-        User user = userService.createUser(createUserDto);
-        return ResponseEntity.ok(user);
+    public ResponseEntity<User> createUser(@RequestBody CreateUpdateUserDto createUserDto, @RequestHeader("Idempotency-Key") String idempotencyKey) {
+        return userService.createUserWithIdempotency(createUserDto, idempotencyKey);
     }
 
     @GetMapping("/{id}")
@@ -43,11 +42,11 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User user) {
+    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User user, @RequestHeader("Idempotency-Key") String idempotencyKey) {
         if (!id.equals(user.getId())) {
             return ResponseEntity.badRequest().build();
         }
-        return ResponseEntity.ok(userService.updateUser(user));
+        return userService.updateUserWithIdempotency(user, idempotencyKey);
     }
 
     @DeleteMapping("/{id}")

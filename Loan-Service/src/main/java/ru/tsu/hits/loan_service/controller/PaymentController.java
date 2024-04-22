@@ -1,8 +1,10 @@
 package ru.tsu.hits.loan_service.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.tsu.hits.loan_service.dto.LoanRateDto;
+import ru.tsu.hits.loan_service.model.LoanRate;
 import ru.tsu.hits.loan_service.model.Payment;
 import ru.tsu.hits.loan_service.service.PaymentService;
 
@@ -11,18 +13,14 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/payments")
+@RequiredArgsConstructor
 public class PaymentController {
 
     private final PaymentService paymentService;
 
-    @Autowired
-    public PaymentController(PaymentService paymentService) {
-        this.paymentService = paymentService;
-    }
-
     @PostMapping
-    public ResponseEntity<Payment> createPayment(@RequestBody Payment payment) {
-        return ResponseEntity.ok(paymentService.createPayment(payment));
+    public ResponseEntity<Payment> createPayment(@RequestBody Payment payment, @RequestHeader("Idempotency-Key") String idempotencyKey) {
+        return paymentService.createPaymentWithIdempotency(payment, idempotencyKey);
     }
 
     @GetMapping("/{id}")
