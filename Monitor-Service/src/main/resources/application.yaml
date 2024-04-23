@@ -10,9 +10,12 @@ spring:
 
 # Database Configuration
   datasource:
-    url: jdbc:postgresql://localhost:5433/timescaledb
+    url: jdbc:postgresql://localhost:5433/monitor-service
     username: postgres
     password: postgres
   jpa:
     hibernate:
       ddl-auto: update
+
+server:
+  port: 8084
