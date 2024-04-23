@@ -2,6 +2,7 @@ package ru.tsu.hits.loan_service.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.apache.kafka.common.protocol.types.Field;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -44,7 +45,7 @@ public class LoanService {
                 .dailyPayment(calculateDailyPayment(application.getAmount(), rate.getInterestRate(), rate.getTermLength()))
                 .build();
 
-        Long primaryAccountId = coreServiceClient.getPrimaryAccountId(application.getOwnerId());
+        String primaryAccountId = coreServiceClient.getPrimaryAccountId(application.getOwnerId());
         coreServiceClient.transferFromMasterAccount(primaryAccountId, application.getAmount());
 
         return loanRepository.save(loan);
@@ -72,7 +73,7 @@ public class LoanService {
             loan.setClosedAt(LocalDateTime.now());
         }
 
-        Long primaryAccountId = coreServiceClient.getPrimaryAccountId(loan.getOwnerId());
+        String primaryAccountId = coreServiceClient.getPrimaryAccountId(loan.getOwnerId());
         coreServiceClient.transferToMasterAccount(primaryAccountId, amount);
 
         paymentService.createPayment(Payment.builder()
