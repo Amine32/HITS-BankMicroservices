@@ -15,20 +15,7 @@ public class CoreServiceClient {
 
     private final String coreServiceUrl = "http://localhost:8080/core/api";
 
-    public void postTransaction(Long accountId, BigDecimal amount, String transactionType) {
-        AccountTransactionDto transactionDto = new AccountTransactionDto(accountId, amount, transactionType);
-
-        webClientBuilder.build()
-                .post()
-                .uri(coreServiceUrl + "/transactions")
-                .header("Service-Name", "Loan-Service")
-                .bodyValue(transactionDto)
-                .retrieve()
-                .bodyToMono(Void.class)
-                .block();
-    }
-
-    public void transferFromMasterAccount(Long toAccountId, BigDecimal amount) {
+    public void transferFromMasterAccount(String toAccountId, BigDecimal amount) {
         webClientBuilder.build()
                 .post()
                 .uri(coreServiceUrl + "/accounts/transfer/from-master/" + toAccountId)
@@ -39,7 +26,7 @@ public class CoreServiceClient {
                 .block();
     }
 
-    public void transferToMasterAccount(Long fromAccountId, BigDecimal amount) {
+    public void transferToMasterAccount(String fromAccountId, BigDecimal amount) {
         webClientBuilder.build()
                 .post()
                 .uri(coreServiceUrl + "/accounts/transfer/to-master/" + fromAccountId)
@@ -50,13 +37,13 @@ public class CoreServiceClient {
                 .block();
     }
 
-    public Long getPrimaryAccountId(Long ownerId) {
+    public String getPrimaryAccountId(Long ownerId) {
         return webClientBuilder.build()
                 .get()
                 .uri(coreServiceUrl + "/accounts/primary/" + ownerId)
                 .header("Service-Name", "Loan-Service")
                 .retrieve()
-                .bodyToMono(Long.class)
+                .bodyToMono(String.class)
                 .block();
     }
 }
