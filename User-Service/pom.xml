@@ -12,12 +12,9 @@
     </parent>
 
     <artifactId>User-Service</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
     <name>User-Account-Service</name>
     <description>User-Account-Service</description>
-    <properties>
-        <java.version>17</java.version>
-    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -26,7 +23,6 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.28</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -48,7 +44,6 @@
         <dependency>
             <groupId>net.logstash.logback</groupId>
             <artifactId>logstash-logback-encoder</artifactId>
-            <version>7.4</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.kafka</groupId>
