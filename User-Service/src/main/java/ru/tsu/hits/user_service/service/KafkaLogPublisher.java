@@ -11,7 +11,7 @@ public class KafkaLogPublisher {
 
     private final KafkaTemplate<String, String> kafkaTemplate;
 
-    @Value("${monitoring.kafka.topic}")
+    @Value("${spring.kafka.topic.monitoring}")
     private String logTopic;
 
     public void publishLog(String logMessage) {
