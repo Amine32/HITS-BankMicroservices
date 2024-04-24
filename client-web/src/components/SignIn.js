@@ -11,7 +11,6 @@ function SignIn() {
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
-    console.log(sessionStorage.getItem("userId"));
     const handleSubmit = (event) => {
         event.preventDefault();
         setLoading(true);

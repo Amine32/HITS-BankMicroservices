@@ -6,6 +6,7 @@ import DepositModal from './DepositModal';
 import OpenAccountModal from "./OpenAccountModal";
 import CloseAccountModal from "./CloseAccountModal";
 import ViewTransactionsModal from "./ViewTransactionsModal";
+import TransferMoneyModal from './TransferMoneyModal';
 
 function ViewAccounts() {
     const [accounts, setAccounts] = useState([]);
@@ -16,7 +17,8 @@ function ViewAccounts() {
         closeAccount: false,
         deposit: false,
         withdraw: false,
-        transactions: false
+        transactions: false,
+        transfer: false
     });
 
     useEffect(() => {
@@ -74,6 +76,13 @@ function ViewAccounts() {
                 Open New Account
             </Button>
 
+            <Button
+                className='app__button mt-2 ms-2'
+                onClick={() => handleModalShow('transfer')}
+            >
+                Transfer between accounts
+            </Button>
+
             <Table striped bordered hover className="mt-4">
                 <thead>
                 <tr>
@@ -86,7 +95,7 @@ function ViewAccounts() {
                 {accounts.map(account => (
                     <tr key={account.id}>
                         <td>{account.id}</td>
-                        <td>${account.balance.toFixed(2)}</td>
+                        <td>{account.currency} {account.balance.toFixed(2)}</td>
                         <td>
                             <div className="d-flex justify-content-between">
                                 <div>
@@ -130,6 +139,13 @@ function ViewAccounts() {
                 onAccountCreated={() => handleAccountActionComplete()}
                 onAlert={handleAlertShow}
             />
+
+                <TransferMoneyModal
+                accounts = {accounts}
+                show={showModal.transfer}
+                onHide={() => handleModalClose('transfer')}
+                onTransfer={() => handleAccountActionComplete()}
+                onAlert={handleAlertShow}/>
 
             {selectedAccount && (
                 <>
