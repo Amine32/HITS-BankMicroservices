@@ -172,6 +172,7 @@ public class AccountService {
 
         // Record the transaction from master to client account
         transactionService.recordTransaction(masterAccount.getId(), amount.negate(), TransactionType.TRANSFER);
+        transactionService.recordTransaction(toAccount.getId(), amount, TransactionType.LOAN);
     }
 
     @Transactional
@@ -191,6 +192,7 @@ public class AccountService {
         accountRepository.save(masterAccount);
 
         transactionService.recordTransaction(masterAccount.getId(), amount, TransactionType.TRANSFER);
+        transactionService.recordTransaction(fromAccount.getId(), amount.negate(), TransactionType.LOAN_PAYMENT);
     }
 
     public Account findMasterAccount() {

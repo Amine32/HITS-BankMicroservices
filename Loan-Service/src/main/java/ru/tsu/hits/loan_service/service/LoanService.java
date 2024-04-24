@@ -42,9 +42,8 @@ public class LoanService {
                 .dailyPayment(calculateDailyPayment(application.getAmount(), rate.getInterestRate(), rate.getTermLength()))
                 .build();
 
-        Long primaryAccountId = coreServiceClient.getPrimaryAccountId(application.getOwnerId());
+        String primaryAccountId = coreServiceClient.getPrimaryAccountId(application.getOwnerId());
         coreServiceClient.transferFromMasterAccount(primaryAccountId, application.getAmount());
-        coreServiceClient.postTransaction(primaryAccountId, application.getAmount(), "LOAN");
 
         return loanRepository.save(loan);
     }
@@ -71,9 +70,8 @@ public class LoanService {
             loan.setClosedAt(LocalDateTime.now());
         }
 
-        Long primaryAccountId = coreServiceClient.getPrimaryAccountId(loan.getOwnerId());
+        String primaryAccountId = coreServiceClient.getPrimaryAccountId(loan.getOwnerId());
         coreServiceClient.transferToMasterAccount(primaryAccountId, amount);
-        coreServiceClient.postTransaction(primaryAccountId, amount, "LOAN_PAYMENT");
 
         paymentService.createPayment(Payment.builder()
                 .loan(loan)
