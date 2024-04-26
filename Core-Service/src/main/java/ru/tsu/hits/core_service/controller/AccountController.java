@@ -2,6 +2,7 @@ package ru.tsu.hits.core_service.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -24,8 +25,13 @@ public class AccountController {
     private final JwtUtil jwtUtil;
 
     @PostMapping("/{id}")
-    public ResponseEntity<Account> createAccount(@PathVariable Long id, @RequestBody Currency currency) {
-        return ResponseEntity.ok(accountService.createAccount(id, currency));
+    public ResponseEntity<Account> createAccount(@PathVariable Long id, @RequestBody Currency currency, @RequestHeader("Idempotency-Key") String idempotencyKey) {
+        Object response = accountService.checkAndCreateAccount(id, currency, idempotencyKey);
+        if (response instanceof Account) {
+            return ResponseEntity.ok((Account) response);
+        } else {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
     }
 
     @GetMapping("/{id}")
@@ -52,17 +58,15 @@ public class AccountController {
     }
 
     @PostMapping("/{id}/deposit")
-    @PreAuthorize("@accountService.isUserAccountOwner(#id,authentication.principal.userId)")
-    public ResponseEntity<Account> depositMoney(@PathVariable String id, @RequestBody BigDecimal amount) {
-        Account account = accountService.depositMoney(id, amount);
-        return ResponseEntity.ok(account);
+    @PreAuthorize("@accountService.isUserAccountOwner(#id, authentication.principal.userId)")
+    public ResponseEntity<Account> depositMoney(@PathVariable String id, @RequestBody BigDecimal amount, @RequestHeader("Idempotency-Key") String idempotencyKey) {
+        return accountService.performIdempotentDeposit(id, amount, idempotencyKey);
     }
 
     @PostMapping("/{id}/withdraw")
     @PreAuthorize("@accountService.isUserAccountOwner(#id, authentication.principal.userId)")
-    public ResponseEntity<Account> withdrawMoney(@PathVariable String id, @RequestBody BigDecimal amount) {
-        Account account = accountService.withdrawMoney(id, amount);
-        return ResponseEntity.ok(account);
+    public ResponseEntity<Account> withdrawMoney(@PathVariable String id, @RequestBody BigDecimal amount, @RequestHeader("Idempotency-Key") String idempotencyKey) {
+        return accountService.performIdempotentWithdrawal(id, amount, idempotencyKey);
     }
 
     @GetMapping("/user/{userId}")
@@ -87,12 +91,11 @@ public class AccountController {
     }
 
     @PostMapping("/transfer")
-    public ResponseEntity<?> transferFunds(@RequestBody AccountTransferDto transferDto, HttpServletRequest request) {
+    public ResponseEntity<?> transferFunds(@RequestBody AccountTransferDto transferDto, HttpServletRequest request, @RequestHeader("Idempotency-Key") String idempotencyKey) {
         String jwt = jwtUtil.getJwtFromRequest(request);
         Long userId = jwtUtil.getUserIdFromJwtToken(jwt);
 
-        accountService.transferMoney(transferDto, userId);
-        return ResponseEntity.ok().build();
+        return accountService.performIdempotentTransfer(transferDto, userId, idempotencyKey);
     }
 
     @PostMapping("/transfer/from-master/{toAccountId}")

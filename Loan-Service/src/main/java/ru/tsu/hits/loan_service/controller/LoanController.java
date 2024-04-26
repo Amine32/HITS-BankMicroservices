@@ -20,15 +20,13 @@ public class LoanController {
     private final LoanService loanService;
 
     @PostMapping
-    public ResponseEntity<Loan> applyForLoan(@RequestBody LoanApplicationDto application) {
-        Loan loan = loanService.applyForLoan(application);
-        return ResponseEntity.ok(loan);
+    public ResponseEntity<?> applyForLoan(@RequestBody LoanApplicationDto application, @RequestHeader("Idempotency-Key") String idempotencyKey) {
+        return loanService.applyForLoanWithIdempotency(application, idempotencyKey);
     }
 
     @PostMapping("/{loanId}/repayments")
-    public ResponseEntity<Loan> makeRepayment(@PathVariable Long loanId, @RequestBody PaymentDto paymentDto) {
-        Loan loan = loanService.repayLoan(loanId, paymentDto.getPaymentAmount());
-        return ResponseEntity.ok(loan);
+    public ResponseEntity<?> makeRepayment(@PathVariable Long loanId, @RequestBody PaymentDto paymentDto, @RequestHeader("Idempotency-Key") String idempotencyKey) {
+        return loanService.repayLoanWithIdempotency(loanId, paymentDto.getPaymentAmount(), idempotencyKey);
     }
 
     @GetMapping("/user/{userId}")
@@ -46,8 +44,8 @@ public class LoanController {
     }
 
     @PostMapping("/payoff/{loanId}")
-    public Loan payOff(@PathVariable Long loanId, @RequestBody BigDecimal amount) {
-        return loanService.repayLoan(loanId, amount);
+    public ResponseEntity<?> payOff(@PathVariable Long loanId, @RequestBody BigDecimal amount, @RequestHeader("Idempotency-Key") String idempotencyKey) {
+        return loanService.payOffLoanWithIdempotency(loanId, amount, idempotencyKey);
     }
 
     @GetMapping("/user/{userId}/overdue")
@@ -63,5 +61,4 @@ public class LoanController {
         BigDecimal creditRating = loanService.calculateCreditRating(userId);
         return ResponseEntity.ok(creditRating);
     }
-
 }

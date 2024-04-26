@@ -19,10 +19,17 @@ public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final SimpMessagingTemplate messagingTemplate;
     private final TransactionProducer transactionProducer;
+    private final FirebaseMessagingService firebaseMessagingService;
 
-    public void recordTransaction(String accountId, BigDecimal amount, TransactionType type) {
+    public void recordTransaction(String accountId, Long ownerId, BigDecimal amount, TransactionType type) {
         TransactionMessage message = new TransactionMessage(accountId, amount, type.toString());
         transactionProducer.sendTransactionMessage(message);
+
+        // Notify all employees about every transaction
+        firebaseMessagingService.sendNotification("New Transaction", "A new " + type + " transaction for account " + accountId, "employee");
+
+        // Notify the account owner if it's a transaction related to their account
+        firebaseMessagingService.sendNotification("New Transaction", "Your account " + accountId + " had a new " + type + " transaction", "user_" + ownerId);
     }
 
     public List<Transaction> getTransactionsByAccountId(String accountId) {

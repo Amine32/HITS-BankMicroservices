@@ -3,8 +3,6 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <packaging>jar</packaging>
-
     <parent>
         <groupId>ru.tsu.hits</groupId>
         <artifactId>Banking-Microservices</artifactId>
@@ -12,7 +10,6 @@
     </parent>
 
     <artifactId>API-Gateway</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
     <name>API-Gateway</name>
     <description>API-Gateway</description>
 
@@ -20,7 +17,6 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-gateway</artifactId>
-            <version>4.1.1</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

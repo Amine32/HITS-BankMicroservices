@@ -2,6 +2,8 @@ package ru.tsu.hits.loan_service.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ru.tsu.hits.loan_service.dto.LoanApplicationDto;
@@ -23,8 +25,8 @@ public class LoanService {
     private final CoreServiceClient coreServiceClient;
     private final LoanRateService loanRateService;
     private final PaymentService paymentService;
+    private final IdempotencyCacheService idempotencyCacheService;
 
-    @Transactional
     public Loan applyForLoan(LoanApplicationDto application) {
         LoanRate rate = loanRateService.getLoanRateById(application.getRateId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid loan rate ID"));
@@ -42,9 +44,8 @@ public class LoanService {
                 .dailyPayment(calculateDailyPayment(application.getAmount(), rate.getInterestRate(), rate.getTermLength()))
                 .build();
 
-        Long primaryAccountId = coreServiceClient.getPrimaryAccountId(application.getOwnerId());
+        String primaryAccountId = coreServiceClient.getPrimaryAccountId(application.getOwnerId());
         coreServiceClient.transferFromMasterAccount(primaryAccountId, application.getAmount());
-        coreServiceClient.postTransaction(primaryAccountId, application.getAmount(), "LOAN");
 
         return loanRepository.save(loan);
     }
@@ -71,9 +72,8 @@ public class LoanService {
             loan.setClosedAt(LocalDateTime.now());
         }
 
-        Long primaryAccountId = coreServiceClient.getPrimaryAccountId(loan.getOwnerId());
+        String primaryAccountId = coreServiceClient.getPrimaryAccountId(loan.getOwnerId());
         coreServiceClient.transferToMasterAccount(primaryAccountId, amount);
-        coreServiceClient.postTransaction(primaryAccountId, amount, "LOAN_PAYMENT");
 
         paymentService.createPayment(Payment.builder()
                 .loan(loan)
@@ -132,5 +132,46 @@ public class LoanService {
         }
 
         return score.max(BigDecimal.ZERO);  // Ensure the score doesn't go below 0
+    }
+
+    public ResponseEntity<Object> applyForLoanWithIdempotency(LoanApplicationDto application, String idempotencyKey) {
+        Object existingResponse = idempotencyCacheService.getResponse(idempotencyKey);
+        if (existingResponse != null) {
+            return ResponseEntity.ok(existingResponse);
+        }
+
+        try {
+            applyForLoan(application);
+            idempotencyCacheService.storeResponse(idempotencyKey, "Loan application successful");
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Loan application failed");
+        }
+    }
+
+    public ResponseEntity<Object> repayLoanWithIdempotency(Long loanId, BigDecimal paymentAmount, String idempotencyKey) {
+        Object existingResponse = idempotencyCacheService.getResponse(idempotencyKey);
+        if (existingResponse != null) {
+            return ResponseEntity.ok(existingResponse);
+        }
+
+        try {
+            repayLoan(loanId, paymentAmount);
+            idempotencyCacheService.storeResponse(idempotencyKey, "Loan repayment successful");
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Loan repayment failed");
+        }
+    }
+
+    public ResponseEntity<?> payOffLoanWithIdempotency(Long loanId, BigDecimal amount, String idempotencyKey) {
+        Object existingResponse = idempotencyCacheService.getResponse(idempotencyKey);
+        if (existingResponse != null) {
+            return ResponseEntity.ok(existingResponse);
+        }
+
+        Loan loan = repayLoan(loanId, amount);
+        idempotencyCacheService.storeResponse(idempotencyKey, loan);
+        return ResponseEntity.ok(loan);
     }
 }
