@@ -240,7 +240,7 @@ public class AccountService {
             idempotencyCacheService.storeResponse(idempotencyKey, "Transfer successful");
             return ResponseEntity.ok().build();
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Transfer failed");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 

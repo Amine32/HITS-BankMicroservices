@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.util.Random;
 
-@Aspect
-@Component
+//@Aspect
+//@Component
 public class UnstableServiceAspect {
 
     private final Random random = new Random();

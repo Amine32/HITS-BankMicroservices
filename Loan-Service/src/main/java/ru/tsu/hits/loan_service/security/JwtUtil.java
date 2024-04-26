@@ -31,7 +31,7 @@ public class JwtUtil {
             Jws<Claims> claims = Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(authToken);
             return !claims.getBody().getExpiration().before(new Date());
         } catch (Exception e) {
-            // Log the exception
+            //TODO add exception management
         }
         return false;
     }
