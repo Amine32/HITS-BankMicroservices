@@ -1,6 +1,7 @@
 import React from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import { instance } from "../api/instance";
+import generateIdempotencyKey from '../helper/Idempotency';
 
 function OpenAccountModal({ show, onHide, onAccountCreated, onAlert }) {
   const ownerId = sessionStorage.getItem("userId");
@@ -47,7 +48,12 @@ function OpenAccountModal({ show, onHide, onAccountCreated, onAlert }) {
 
   const handleOpenAccount = () => {
     instance
-      .post(`http://localhost:8080/core/api/accounts/${ownerId}`, currencyToString())
+      .post(`http://localhost:8080/core/api/accounts/${ownerId}`, currencyToString(), {
+            headers: {
+                'Content-Type': 'application/json',
+                "Idempotency-Key": generateIdempotencyKey(),
+            }
+        })
       .then(() => {
         onAccountCreated();
         onAlert("Account created successfully!", "success");
