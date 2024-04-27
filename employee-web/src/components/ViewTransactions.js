@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { instance } from '../api/instance';
 import { Table } from 'react-bootstrap';
 
 function ViewTransactions({ accountId }) {
     const [transactions, setTransactions] = useState([]);
 
     useEffect(() => {
-        axios.get(`http://localhost:8080/api/accounts/${accountId}/transactions`, {
+        instance.get(`http://localhost:8080/api/accounts/${accountId}/transactions`, {
             headers: {
                 // Include any necessary headers
             }

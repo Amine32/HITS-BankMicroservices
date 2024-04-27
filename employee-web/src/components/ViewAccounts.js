@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import axios from 'axios';
+import { instance } from '../api/instance';
 import {Table} from 'react-bootstrap';
 import {useNavigate} from "react-router-dom";
 import ViewTransactionsModal from "./ViewTransactionsModal";
@@ -10,7 +10,7 @@ function ViewAccounts() {
     const [showTransactionsModal, setShowTransactionsModal] = useState(false);
 
     useEffect(() => {
-        axios.get('http://localhost:8080/core/api/accounts/all')
+        instance.get('http://localhost:8080/core/api/accounts/all')
             .then(response => {
                 setAccounts(response.data);
             }).catch(error => {
