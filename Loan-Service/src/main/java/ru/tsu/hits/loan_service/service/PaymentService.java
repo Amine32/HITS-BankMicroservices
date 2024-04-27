@@ -1,6 +1,7 @@
 package ru.tsu.hits.loan_service.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ru.tsu.hits.loan_service.model.Payment;
 import ru.tsu.hits.loan_service.repository.PaymentRepository;
@@ -13,6 +14,7 @@ import java.util.Optional;
 public class PaymentService {
 
     private final PaymentRepository paymentRepository;
+    private final IdempotencyCacheService idempotencyCacheService;
 
     public Payment createPayment(Payment payment) {
         return paymentRepository.save(payment);
@@ -32,5 +34,16 @@ public class PaymentService {
 
     public List<Payment> getAllPaymentsForLoan(Long loanId) {
         return paymentRepository.findAllByLoanId(loanId);
+    }
+
+    public ResponseEntity<Payment> createPaymentWithIdempotency(Payment payment, String idempotencyKey) {
+        Object existingResponse = idempotencyCacheService.getResponse(idempotencyKey);
+        if (existingResponse != null) {
+            return ResponseEntity.ok((Payment) existingResponse);
+        }
+
+        Payment createdPayment = createPayment(payment); // Actual payment creation logic
+        idempotencyCacheService.storeResponse(idempotencyKey, createdPayment);
+        return ResponseEntity.ok(createdPayment);
     }
 }

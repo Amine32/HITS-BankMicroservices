@@ -1,19 +1,25 @@
 import React, { useState } from "react";
 import { Modal, Button, Form, Dropdown } from "react-bootstrap";
 import { instance } from "../api/instance";
+import generateIdempotencyKey from '../helper/Idempotency';
 
 function TransferMoneyModal({ accounts, show, onHide, onTransfer, onAlert }) {
-  const [accountFrom, setAccountFrom] = useState("");
-  const [accountTo, setAccountTo] = useState("");
+  const [fromAccountId, setAccountFrom] = useState("");
+  const [toAccountId, setAccountTo] = useState("");
   const [amount, setAmount] = useState("");
 
   const handleTransfer = () => {
     instance
       .post(`http://localhost:8080/core/api/accounts/transfer`, {
-        accountFrom,
-        accountTo,
+        fromAccountId,
+        toAccountId,
         amount,
-      })
+      }, {
+        headers: {
+            'Content-Type': 'application/json',
+            "Idempotency-Key": generateIdempotencyKey(),
+        }
+    })
       .then(() => {
         onTransfer();
         onAlert("Transfer successful!", "success");
@@ -35,7 +41,7 @@ function TransferMoneyModal({ accounts, show, onHide, onTransfer, onAlert }) {
             <Form.Label>Select account from which</Form.Label>
             <Dropdown>
               <Dropdown.Toggle variant="success" id="dropdown-basic">
-                {accountFrom || "Select Account"}
+                {fromAccountId || "Select Account"}
               </Dropdown.Toggle>
               <Dropdown.Menu>
                 {accounts.map((account) => (
@@ -53,8 +59,7 @@ function TransferMoneyModal({ accounts, show, onHide, onTransfer, onAlert }) {
           <Form.Group>
             <Form.Label>Enter account to which</Form.Label>
             <Form.Control
-              type="number"
-              value={amount}
+              value={toAccountId}
               onChange={(e) => setAccountTo(e.target.value)}
               placeholder="Enter account to which"
             />

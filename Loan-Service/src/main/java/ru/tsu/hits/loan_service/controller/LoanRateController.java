@@ -19,9 +19,8 @@ public class LoanRateController {
 
     @PostMapping
     @PreAuthorize("hasAuthority('EMPLOYEE')")
-    public ResponseEntity<LoanRate> createRate(@RequestBody LoanRateDto loanRateDto) {
-        LoanRate rate = loanRateService.createLoanRate(loanRateDto);
-        return ResponseEntity.ok(rate);
+    public ResponseEntity<LoanRate> createRate(@RequestBody LoanRateDto loanRateDto, @RequestHeader("Idempotency-Key") String idempotencyKey) {
+        return loanRateService.createLoanRateWithIdempotency(loanRateDto, idempotencyKey);
     }
 
     @GetMapping("/all")

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Modal, Button, Form, Dropdown } from 'react-bootstrap';
 import { instance } from '../api/instance';
+import generateIdempotencyKey from '../helper/Idempotency';
 
 function ApplyLoanModal({ show, onHide, loanRates, onLoanApplied }) {
     const [selectedRate, setSelectedRate] = useState('');
@@ -17,7 +18,8 @@ function ApplyLoanModal({ show, onHide, loanRates, onLoanApplied }) {
 
         instance.post('http://localhost:8080/loan/api/loans', loanData, {
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                "Idempotency-Key": generateIdempotencyKey(),
             },
             withCredentials: true
         })

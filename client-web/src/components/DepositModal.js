@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import {Modal, Button, Form} from 'react-bootstrap';
 import { instance } from '../api/instance';
+import generateIdempotencyKey from '../helper/Idempotency';
 
 function DepositModal({account, show, onHide, onDeposit, onAlert}) {
     const [amount, setAmount] = useState('');
@@ -8,7 +9,8 @@ function DepositModal({account, show, onHide, onDeposit, onAlert}) {
     const handleDeposit = () => {
         instance.post(`http://localhost:8080/core/api/accounts/${account.id}/deposit`, parseFloat(amount), {
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                "Idempotency-Key": generateIdempotencyKey(),
             }
         })
             .then(() => {

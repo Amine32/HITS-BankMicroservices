@@ -3,16 +3,18 @@ package ru.tsu.hits.core_service.service;
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ru.tsu.hits.core_service.dto.AccountTransferDto;
 import ru.tsu.hits.core_service.model.Account;
 import ru.tsu.hits.core_service.model.Currency;
 import ru.tsu.hits.core_service.model.TransactionType;
 import ru.tsu.hits.core_service.repository.AccountRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -27,6 +29,7 @@ public class AccountService {
 
     private final TransactionService transactionService;
     private final CurrencyConversionService currencyConversionService;
+    private final IdempotencyCacheService idempotencyCacheService;
     private final AccountRepository accountRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(AccountService.class);
@@ -77,7 +80,7 @@ public class AccountService {
         Account account = accountRepository.findById(id).orElseThrow(() -> new RuntimeException("Account not found"));
         account.setBalance(account.getBalance().add(amount));
 
-        transactionService.recordTransaction(account.getId(), amount, TransactionType.DEPOSIT);
+        transactionService.recordTransaction(account.getId(), account.getOwnerId(), amount, TransactionType.DEPOSIT);
 
         return accountRepository.save(account);
     }
@@ -90,7 +93,7 @@ public class AccountService {
         }
         account.setBalance(account.getBalance().subtract(amount));
 
-        transactionService.recordTransaction(account.getId(), amount.negate(), TransactionType.WITHDRAWAL);
+        transactionService.recordTransaction(account.getId(), account.getOwnerId(), amount.negate(), TransactionType.WITHDRAWAL);
 
         return accountRepository.save(account);
     }
@@ -119,7 +122,6 @@ public class AccountService {
         return accountRepository.findByIdAndOwnerId(accountId, userId).isPresent();
     }
 
-    @Transactional
     public void transferMoney(AccountTransferDto transferDto, Long userId) {
         Account fromAccount = accountRepository.findById(transferDto.getFromAccountId())
                 .orElseThrow(() -> new RuntimeException("Source account not found"));
@@ -149,8 +151,8 @@ public class AccountService {
         accountRepository.save(toAccount);
 
         // Record the transactions
-        transactionService.recordTransaction(fromAccount.getId(), transferDto.getAmount().negate(), TransactionType.TRANSFER);
-        transactionService.recordTransaction(toAccount.getId(), transferDto.getAmount(), TransactionType.TRANSFER);
+        transactionService.recordTransaction(fromAccount.getId(), fromAccount.getOwnerId(), transferDto.getAmount().negate(), TransactionType.TRANSFER);
+        transactionService.recordTransaction(toAccount.getId(), toAccount.getOwnerId(), transferDto.getAmount(), TransactionType.TRANSFER);
     }
 
     @Transactional
@@ -171,8 +173,10 @@ public class AccountService {
         accountRepository.save(toAccount);
 
         // Record the transaction from master to client account
-        transactionService.recordTransaction(masterAccount.getId(), amount.negate(), TransactionType.TRANSFER);
-        transactionService.recordTransaction(toAccount.getId(), amount, TransactionType.LOAN);
+
+        transactionService.recordTransaction(masterAccount.getId(), masterAccount.getOwnerId(), amount.negate(), TransactionType.TRANSFER);
+        transactionService.recordTransaction(toAccount.getId(), toAccount.getOwnerId(), amount, TransactionType.LOAN);
+
     }
 
     @Transactional
@@ -191,8 +195,8 @@ public class AccountService {
         accountRepository.save(fromAccount);
         accountRepository.save(masterAccount);
 
-        transactionService.recordTransaction(masterAccount.getId(), amount, TransactionType.TRANSFER);
-        transactionService.recordTransaction(fromAccount.getId(), amount.negate(), TransactionType.LOAN_PAYMENT);
+        transactionService.recordTransaction(masterAccount.getId(), masterAccount.getOwnerId(), amount, TransactionType.TRANSFER);
+        transactionService.recordTransaction(fromAccount.getId(), fromAccount.getOwnerId(), amount, TransactionType.LOAN_PAYMENT);
     }
 
     public Account findMasterAccount() {
@@ -213,5 +217,54 @@ public class AccountService {
 
             accountRepository.save(masterAccount);
         }
+    }
+
+    public Object checkAndCreateAccount(Long id, Currency currency, String idempotencyKey) {
+        // Check if the idempotency key is already present
+        Object existingResponse = idempotencyCacheService.getResponse(idempotencyKey);
+        if (existingResponse != null) {
+            return existingResponse;
+        }
+
+        Account newAccount = createAccount(id, currency);
+        idempotencyCacheService.storeResponse(idempotencyKey, newAccount);
+        return newAccount;
+    }
+
+    public ResponseEntity<?> performIdempotentTransfer(AccountTransferDto transferDto, Long userId, String idempotencyKey) {
+        Object existingResponse = idempotencyCacheService.getResponse(idempotencyKey);
+        if (existingResponse != null) {
+            return ResponseEntity.ok(existingResponse);
+        }
+
+        try {
+            transferMoney(transferDto, userId);
+            idempotencyCacheService.storeResponse(idempotencyKey, "Transfer successful");
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Transfer failed");
+        }
+    }
+
+    public ResponseEntity<Account> performIdempotentDeposit(String accountId, BigDecimal amount, String idempotencyKey) {
+        Object existingResponse = idempotencyCacheService.getResponse(idempotencyKey);
+        if (existingResponse != null) {
+            return ResponseEntity.ok((Account) existingResponse);
+        }
+
+        Account account = depositMoney(accountId, amount); // Actual deposit logic
+        idempotencyCacheService.storeResponse(idempotencyKey, account);
+        return ResponseEntity.ok(account);
+    }
+
+    public ResponseEntity<Account> performIdempotentWithdrawal(String accountId, BigDecimal amount, String idempotencyKey) {
+        Object existingResponse = idempotencyCacheService.getResponse(idempotencyKey);
+        if (existingResponse != null) {
+            return ResponseEntity.ok((Account) existingResponse);
+        }
+
+        Account account = withdrawMoney(accountId, amount); // Actual withdrawal logic
+        idempotencyCacheService.storeResponse(idempotencyKey, account);
+        return ResponseEntity.ok(account);
     }
 }

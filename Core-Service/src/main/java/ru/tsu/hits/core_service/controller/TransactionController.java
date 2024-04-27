@@ -2,11 +2,8 @@ package ru.tsu.hits.core_service.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import ru.tsu.hits.core_service.dto.AccountTransactionDto;
 import ru.tsu.hits.core_service.model.Transaction;
-import ru.tsu.hits.core_service.model.TransactionType;
 import ru.tsu.hits.core_service.service.TransactionService;
 
 import java.util.List;
@@ -24,9 +21,11 @@ public class TransactionController {
         return ResponseEntity.ok(transactions);
     }
 
+    /*
     @PostMapping
     @PreAuthorize("hasRole('TRUSTED_SERVICE')")
     public void recordTransaction(@RequestBody AccountTransactionDto dto) {
         transactionService.recordTransaction(dto.getAccountId(), dto.getAmount(), TransactionType.valueOf(dto.getTransactionType()));
     }
+    */
 }

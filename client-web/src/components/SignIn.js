@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Card, Form, Button, Alert, Spinner } from 'react-bootstrap';
 import { useNavigate } from "react-router-dom";
 import decodeJWTAndSave from "../helper/jwtDecode"
+import generateIdempotencyKey from '../helper/Idempotency';
 
 function SignIn() {
     const [email, setEmail] = useState('');
@@ -22,7 +23,7 @@ function SignIn() {
         };
 
         axios.post('http://localhost:8080/user/api/users/authenticate', userData, {
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', "Idempotency-Key": generateIdempotencyKey(), },
             withCredentials: true
         })
             .then(response => {

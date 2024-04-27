@@ -3,6 +3,8 @@ package ru.tsu.hits.user_service.service;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,6 +27,7 @@ public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserPreferenceService userPreferenceService;
+    private final IdempotencyCacheService idempotencyCacheService;
 
 
     public User createUser(CreateUpdateUserDto createUserDto) {
@@ -86,6 +89,26 @@ public class UserService implements UserDetailsService {
         return roles.stream()
                 .map(role -> new SimpleGrantedAuthority(role.name()))
                 .collect(Collectors.toList());
+    }
+
+    public ResponseEntity<User> createUserWithIdempotency(CreateUpdateUserDto createUserDto, String idempotencyKey) {
+        if (idempotencyCacheService.getResponse(idempotencyKey) != null) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+
+        User user = createUser(createUserDto); // Business logic for user creation
+        idempotencyCacheService.storeResponse(idempotencyKey, user);
+        return ResponseEntity.ok(user);
+    }
+
+    public ResponseEntity<User> updateUserWithIdempotency(User user, String idempotencyKey) {
+        if (idempotencyCacheService.getResponse(idempotencyKey) != null) {
+            return ResponseEntity.ok(user);
+        }
+
+        User updatedUser = updateUser(user); // Business logic for user update
+        idempotencyCacheService.storeResponse(idempotencyKey, updatedUser);
+        return ResponseEntity.ok(updatedUser);
     }
 
     @Getter
