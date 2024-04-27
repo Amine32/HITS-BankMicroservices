@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, Button, Form, Alert } from 'react-bootstrap';
-import axios from 'axios';
+import { instance } from "../api/instance"
 
 function CreateRate({ show, onHide, onRateCreated }) {
     const [name, setName] = useState('');
@@ -25,7 +25,7 @@ function CreateRate({ show, onHide, onRateCreated }) {
             termLength: parseInt(termLength, 10)
         };
 
-        axios.post('http://localhost:8080/loan/api/rates', loanRateDto)
+        instance.post('http://localhost:8080/loan/api/rates', loanRateDto)
             .then(response => {
                 setSuccess('Rate created successfully.');
                 onRateCreated(response.data);

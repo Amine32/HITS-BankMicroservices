@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Table } from 'react-bootstrap';
-import axios from 'axios';
+import { instance } from '../api/instance';
 
 function ViewTransactionsModal({ accountId, show, onHide }) {
     const [transactions, setTransactions] = useState([]);
 
     useEffect(() => {
         if (show) {
-            axios.get(`http://localhost:8080/core/api/transactions/${accountId}`)
+            instance.get(`http://localhost:8080/core/api/transactions/${accountId}`)
                 .then(response => {
                     setTransactions(response.data);
                 })

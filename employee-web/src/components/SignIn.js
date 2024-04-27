@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { Card, Form, Button, Alert, Spinner } from 'react-bootstrap';
 import { useNavigate } from "react-router-dom";
+import decodeJWTAndSave from "../helper/jwtDecode"
 
 function SignIn() {
     const [email, setEmail] = useState('');
@@ -25,8 +26,9 @@ function SignIn() {
             withCredentials: true
         })
             .then(response => {
-                sessionStorage.setItem('authToken', response.data);
+                sessionStorage.setItem('authToken', response.data.token); 
                 setLoading(false);
+                decodeJWTAndSave(response.data.token);
                 navigate('/manage-users');
             })
             .catch(error => {

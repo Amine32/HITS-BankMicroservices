@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, Form, Button } from 'react-bootstrap';
-import axios from 'axios';
+import { instance } from "../api/instance"
 
 const CreateUserModal = ({ show, handleClose, handleShowToast, addUser }) => {
     const [email, setEmail] = useState('');
@@ -10,7 +10,7 @@ const CreateUserModal = ({ show, handleClose, handleShowToast, addUser }) => {
     const handleCreateUser = (event) => {
         event.preventDefault();
 
-        axios.post('http://localhost:8080/user/api/users', { email, password, role })
+        instance.post('http://localhost:8080/user/api/users', { email, password, role })
             .then((response) => {
                 handleClose(); // Close the modal
                 handleShowToast('User created successfully', 'success');

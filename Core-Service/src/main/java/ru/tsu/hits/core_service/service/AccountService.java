@@ -173,8 +173,10 @@ public class AccountService {
         accountRepository.save(toAccount);
 
         // Record the transaction from master to client account
+
         transactionService.recordTransaction(masterAccount.getId(), masterAccount.getOwnerId(), amount.negate(), TransactionType.TRANSFER);
         transactionService.recordTransaction(toAccount.getId(), toAccount.getOwnerId(), amount, TransactionType.LOAN);
+
     }
 
     @Transactional

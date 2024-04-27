@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Form, Button } from 'react-bootstrap';
-import axios from 'axios';
+import { instance } from '../api/instance';
 
 const EditRate = ({ rate, show, onHide, handleShowToast, updateRate }) => {
     const [name, setName] = useState('');
@@ -24,7 +24,7 @@ const EditRate = ({ rate, show, onHide, handleShowToast, updateRate }) => {
             termLength: termLength
         };
 
-        axios.put(`http://localhost:8080/loan/api/rates/${rate.id}`, updatedRate)
+        instance.put(`http://localhost:8080/loan/api/rates/${rate.id}`, updatedRate)
             .then((response) => {
                 onHide(); // Close the modal
                 handleShowToast('Rate updated successfully', 'success');
