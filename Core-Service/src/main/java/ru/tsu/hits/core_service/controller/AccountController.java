@@ -91,11 +91,11 @@ public class AccountController {
     }
 
     @PostMapping("/transfer")
-    public ResponseEntity<?> transferFunds(@RequestBody AccountTransferDto transferDto, HttpServletRequest request, @RequestHeader("Idempotency-Key") String idempotencyKey) {
+    public void transferFunds(@RequestBody AccountTransferDto transferDto, HttpServletRequest request, @RequestHeader("Idempotency-Key") String idempotencyKey) {
         String jwt = jwtUtil.getJwtFromRequest(request);
         Long userId = jwtUtil.getUserIdFromJwtToken(jwt);
 
-        return accountService.performIdempotentTransfer(transferDto, userId, idempotencyKey);
+        accountService.transferMoney(transferDto, userId);
     }
 
     @PostMapping("/transfer/from-master/{toAccountId}")

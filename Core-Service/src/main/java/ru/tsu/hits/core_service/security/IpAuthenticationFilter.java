@@ -11,14 +11,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.GenericFilterBean;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 public class IpAuthenticationFilter extends GenericFilterBean {
 
-    private static final Set<String> trustedIps = new HashSet<>(List.of("127.0.0.1", "192.168.1.100"));
+    private static final Set<String> trustedIps = new HashSet<>(Arrays.asList("127.0.0.1", "192.168.1.100"));
 
     @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
