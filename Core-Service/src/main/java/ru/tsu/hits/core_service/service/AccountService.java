@@ -123,36 +123,40 @@ public class AccountService {
     }
 
     public void transferMoney(AccountTransferDto transferDto, Long userId) {
-        Account fromAccount = accountRepository.findById(transferDto.getFromAccountId())
-                .orElseThrow(() -> new RuntimeException("Source account not found"));
+        try {
+            Account fromAccount = accountRepository.findById(transferDto.getFromAccountId())
+                    .orElseThrow(() -> new RuntimeException("Source account not found"));
 
-        Account toAccount = accountRepository.findById(transferDto.getToAccountId())
-                .orElseThrow(() -> new RuntimeException("Destination account not found"));
+            Account toAccount = accountRepository.findById(transferDto.getToAccountId())
+                    .orElseThrow(() -> new RuntimeException("Destination account not found"));
 
-        // Check if the user owns the source account
-        if (!fromAccount.getOwnerId().equals(userId)) {
-            throw new RuntimeException("User does not own the source account");
+            // Check if the user owns the source account
+            if (!fromAccount.getOwnerId().equals(userId)) {
+                throw new RuntimeException("User does not own the source account");
+            }
+
+            // Convert amount if necessary
+            BigDecimal convertedAmount = currencyConversionService.convert(fromAccount.getCurrency(), toAccount.getCurrency(), transferDto.getAmount());
+
+            // Check for sufficient funds
+            if (fromAccount.getBalance().compareTo(transferDto.getAmount()) < 0) {
+                throw new RuntimeException("Insufficient funds in the source account");
+            }
+
+            // Perform the transfer
+            fromAccount.setBalance(fromAccount.getBalance().subtract(transferDto.getAmount()));
+            toAccount.setBalance(toAccount.getBalance().add(convertedAmount));
+
+            // Save both the accounts
+            accountRepository.save(fromAccount);
+            accountRepository.save(toAccount);
+
+            // Record the transactions
+            transactionService.recordTransaction(fromAccount.getId(), fromAccount.getOwnerId(), transferDto.getAmount().negate(), TransactionType.TRANSFER);
+            transactionService.recordTransaction(toAccount.getId(), toAccount.getOwnerId(), transferDto.getAmount(), TransactionType.TRANSFER);
+        } catch (RuntimeException e) {
+            throw new RuntimeException("Failed to transfer money", e);
         }
-
-        // Convert amount if necessary
-        BigDecimal convertedAmount = currencyConversionService.convert(fromAccount.getCurrency(), toAccount.getCurrency(), transferDto.getAmount());
-
-        // Check for sufficient funds
-        if (fromAccount.getBalance().compareTo(transferDto.getAmount()) < 0) {
-            throw new RuntimeException("Insufficient funds in the source account");
-        }
-
-        // Perform the transfer
-        fromAccount.setBalance(fromAccount.getBalance().subtract(transferDto.getAmount()));
-        toAccount.setBalance(toAccount.getBalance().add(convertedAmount));
-
-        // Save both the accounts
-        accountRepository.save(fromAccount);
-        accountRepository.save(toAccount);
-
-        // Record the transactions
-        transactionService.recordTransaction(fromAccount.getId(), fromAccount.getOwnerId(), transferDto.getAmount().negate(), TransactionType.TRANSFER);
-        transactionService.recordTransaction(toAccount.getId(), toAccount.getOwnerId(), transferDto.getAmount(), TransactionType.TRANSFER);
     }
 
     @Transactional
