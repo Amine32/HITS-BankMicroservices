@@ -1,7 +1,6 @@
 package ru.tsu.hits.loan_service.aspect;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -9,11 +8,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
+import ru.tsu.hits.loan_service.dto.LogEntryDto;
 import ru.tsu.hits.loan_service.service.KafkaLogPublisher;
 
 import java.time.LocalDateTime;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
@@ -31,29 +29,47 @@ public class RequestLoggingInterceptor implements HandlerInterceptor {
     }
 
     @Override
-    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws JsonProcessingException {
         long duration = System.currentTimeMillis() - startTime.get();
         startTime.remove();
+
         log.info("Request to {} completed in {} ms, status: {}", request.getRequestURI(), duration, response.getStatus());
 
-        String logMessage = createLogMessage(request, response, duration);
+        // Retrieve the exception from request attribute if ex is null
+        Exception storedEx = (Exception) request.getAttribute("exception");
+        if (storedEx != null) {
+            logError(request, response, duration, storedEx);
+        } else if (ex != null) {
+            logError(request, response, duration, ex);
+        } else {
+            logInfo(request, response, duration);
+        }
+    }
+
+    private void logInfo(HttpServletRequest request, HttpServletResponse response, long duration) throws JsonProcessingException {
+        LogEntryDto logMessage = createLogMessage(request, response, duration);
+        System.out.println("Log Message: " + logMessage);
         kafkaLogPublisher.publishLog(logMessage);
     }
 
-    private String createLogMessage(HttpServletRequest request, HttpServletResponse response, long duration) {
-        Map<String, Object> logMap = new LinkedHashMap<>();
-        logMap.put("timestamp", LocalDateTime.now());
-        logMap.put("method", request.getMethod());
-        logMap.put("path", request.getRequestURI());
-        logMap.put("status", response.getStatus());
-        logMap.put("duration", duration);
+    private void logError(HttpServletRequest request, HttpServletResponse response, long duration, Exception ex) throws JsonProcessingException {
+        LogEntryDto logMessage = createLogMessage(request, response, duration);
+        logMessage.setError(ex.getMessage());
+        logMessage.setType(ex.getClass().getSimpleName());
 
-        // Convert the map to a JSON string
-        try {
-            return new ObjectMapper().writeValueAsString(logMap);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("Error processing log message", e);
-        }
+        System.out.println("Error Log Message: " + logMessage);
+        kafkaLogPublisher.publishLog(logMessage);
+    }
+
+    private LogEntryDto createLogMessage(HttpServletRequest request, HttpServletResponse response, long duration) {
+        LogEntryDto logEntryDto = new LogEntryDto();
+        logEntryDto.setTimestamp(LocalDateTime.now());
+        logEntryDto.setMethod(request.getMethod());
+        logEntryDto.setPath(request.getRequestURI());
+        logEntryDto.setStatus(response.getStatus());
+        logEntryDto.setDuration(duration);
+        logEntryDto.setServiceId("UserService");
+        return logEntryDto;
     }
 }
 
