@@ -1,4 +1,4 @@
-package ru.tsu.hits.core_service.dto;
+package ru.tsu.hits.loan_service.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
