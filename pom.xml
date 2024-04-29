@@ -26,6 +26,7 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <postgresql.version>42.7.3</postgresql.version>
+        <jackson.datatype.version>2.17.0</jackson.datatype.version>
     </properties>
 
     <parent>
@@ -117,6 +118,11 @@
                 <artifactId>firebase-admin</artifactId>
                 <version>${firebase.admin.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-jsr310</artifactId>
+                <version>${jackson.datatype.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -173,6 +179,10 @@
         <dependency>
             <groupId>jakarta.validation</groupId>
             <artifactId>jakarta.validation-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
         </dependency>
     </dependencies>
 

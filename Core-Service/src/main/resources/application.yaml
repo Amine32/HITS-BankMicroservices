@@ -27,7 +27,7 @@ spring:
     groupId: core_service_group
     topic:
       transactions: core-service-transactions
-      monitoring: core-service-monitoring
+      monitoring: logs-monitoring
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
