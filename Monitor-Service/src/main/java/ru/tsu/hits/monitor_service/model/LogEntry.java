@@ -16,12 +16,12 @@ public class LogEntry {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String serviceId;
-    private String logLevel;
-    private String message;
     private LocalDateTime timestamp;
-
-    private String traceId;
-    private String errorDetails;
-    private Long responseTime;
+    private String method;
+    private String path;
+    private Integer status;
+    private Long duration;
+    private String serviceId;
+    private String error;        // Optional: Used if it's an error log
+    private String type;         // Optional: Used if it's an error log
 }

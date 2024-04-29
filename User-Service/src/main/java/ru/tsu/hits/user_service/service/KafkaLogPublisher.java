@@ -1,9 +1,13 @@
 package ru.tsu.hits.user_service.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import ru.tsu.hits.user_service.dto.LogEntryDto;
 
 @Service
 @RequiredArgsConstructor
@@ -14,8 +18,11 @@ public class KafkaLogPublisher {
     @Value("${spring.kafka.topic.monitoring}")
     private String logTopic;
 
-    public void publishLog(String logMessage) {
-        kafkaTemplate.send(logTopic, logMessage);
+    public void publishLog(LogEntryDto logMessage) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        String jsonMessage = mapper.writeValueAsString(logMessage);
+        kafkaTemplate.send(logTopic, jsonMessage);
     }
 }
 

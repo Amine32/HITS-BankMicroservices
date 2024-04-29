@@ -2,13 +2,15 @@
 spring:
   kafka:
     bootstrap-servers: localhost:9092
+    topic:
+      monitoring: logs-monitoring
     consumer:
       group-id: monitoring-service
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 
-# Database Configuration
+  # Database Configuration
   datasource:
     url: jdbc:postgresql://localhost:5433/monitor-service
     username: postgres
