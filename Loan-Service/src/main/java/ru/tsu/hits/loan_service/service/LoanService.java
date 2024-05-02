@@ -1,5 +1,6 @@
 package ru.tsu.hits.loan_service.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -7,7 +8,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ru.tsu.hits.loan_service.dto.LoanApplicationDto;
-import ru.tsu.hits.loan_service.model.*;
+import ru.tsu.hits.loan_service.model.Loan;
+import ru.tsu.hits.loan_service.model.LoanRate;
+import ru.tsu.hits.loan_service.model.Payment;
 import ru.tsu.hits.loan_service.repository.LoanRepository;
 
 import java.math.BigDecimal;
@@ -26,6 +29,7 @@ public class LoanService {
     private final LoanRateService loanRateService;
     private final PaymentService paymentService;
     private final IdempotencyCacheService idempotencyCacheService;
+    private final ObjectMapper objectMapper;
 
     public Loan applyForLoan(LoanApplicationDto application) {
         LoanRate rate = loanRateService.getLoanRateById(application.getRateId())
@@ -134,19 +138,15 @@ public class LoanService {
         return score.max(BigDecimal.ZERO);  // Ensure the score doesn't go below 0
     }
 
-    public ResponseEntity<Object> applyForLoanWithIdempotency(LoanApplicationDto application, String idempotencyKey) {
+    public Loan applyForLoanWithIdempotency(LoanApplicationDto application, String idempotencyKey) {
         Object existingResponse = idempotencyCacheService.getResponse(idempotencyKey);
         if (existingResponse != null) {
-            return ResponseEntity.ok(existingResponse);
+            return objectMapper.convertValue(existingResponse, Loan.class);
         }
 
-        try {
-            applyForLoan(application);
-            idempotencyCacheService.storeResponse(idempotencyKey, "Loan application successful");
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Loan application failed");
-        }
+        Loan newLoan = applyForLoan(application);
+        idempotencyCacheService.storeResponse(idempotencyKey, "Loan application successful");
+        return newLoan;
     }
 
     public ResponseEntity<Object> repayLoanWithIdempotency(Long loanId, BigDecimal paymentAmount, String idempotencyKey) {

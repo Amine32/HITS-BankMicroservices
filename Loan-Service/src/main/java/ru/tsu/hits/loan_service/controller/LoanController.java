@@ -20,7 +20,7 @@ public class LoanController {
     private final LoanService loanService;
 
     @PostMapping
-    public ResponseEntity<?> applyForLoan(@RequestBody LoanApplicationDto application, @RequestHeader("Idempotency-Key") String idempotencyKey) {
+    public Loan applyForLoan(@RequestBody LoanApplicationDto application, @RequestHeader("Idempotency-Key") String idempotencyKey) {
         return loanService.applyForLoanWithIdempotency(application, idempotencyKey);
     }
 
