@@ -95,7 +95,7 @@ public class AccountController {
         String jwt = jwtUtil.getJwtFromRequest(request);
         Long userId = jwtUtil.getUserIdFromJwtToken(jwt);
 
-        accountService.transferMoney(transferDto, userId);
+        accountService.performIdempotentTransfer(transferDto, userId, idempotencyKey);
     }
 
     @PostMapping("/transfer/from-master/{toAccountId}")
