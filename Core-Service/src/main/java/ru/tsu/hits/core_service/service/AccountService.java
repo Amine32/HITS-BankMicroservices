@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ru.tsu.hits.core_service.dto.AccountTransferDto;
@@ -123,40 +122,36 @@ public class AccountService {
     }
 
     public void transferMoney(AccountTransferDto transferDto, Long userId) {
-        try {
-            Account fromAccount = accountRepository.findById(transferDto.getFromAccountId())
-                    .orElseThrow(() -> new RuntimeException("Source account not found"));
+        Account fromAccount = accountRepository.findById(transferDto.getFromAccountId())
+                .orElseThrow(() -> new RuntimeException("Source account not found"));
 
-            Account toAccount = accountRepository.findById(transferDto.getToAccountId())
-                    .orElseThrow(() -> new RuntimeException("Destination account not found"));
+        Account toAccount = accountRepository.findById(transferDto.getToAccountId())
+                .orElseThrow(() -> new RuntimeException("Destination account not found"));
 
-            // Check if the user owns the source account
-            if (!fromAccount.getOwnerId().equals(userId)) {
-                throw new RuntimeException("User does not own the source account");
-            }
-
-            // Convert amount if necessary
-            BigDecimal convertedAmount = currencyConversionService.convert(fromAccount.getCurrency(), toAccount.getCurrency(), transferDto.getAmount());
-
-            // Check for sufficient funds
-            if (fromAccount.getBalance().compareTo(transferDto.getAmount()) < 0) {
-                throw new RuntimeException("Insufficient funds in the source account");
-            }
-
-            // Perform the transfer
-            fromAccount.setBalance(fromAccount.getBalance().subtract(transferDto.getAmount()));
-            toAccount.setBalance(toAccount.getBalance().add(convertedAmount));
-
-            // Save both the accounts
-            accountRepository.save(fromAccount);
-            accountRepository.save(toAccount);
-
-            // Record the transactions
-            transactionService.recordTransaction(fromAccount.getId(), fromAccount.getOwnerId(), transferDto.getAmount().negate(), TransactionType.TRANSFER);
-            transactionService.recordTransaction(toAccount.getId(), toAccount.getOwnerId(), transferDto.getAmount(), TransactionType.TRANSFER);
-        } catch (RuntimeException e) {
-            throw new RuntimeException("Failed to transfer money", e);
+        // Check if the user owns the source account
+        if (!fromAccount.getOwnerId().equals(userId)) {
+            throw new RuntimeException("User does not own the source account");
         }
+
+        // Convert amount if necessary
+        BigDecimal convertedAmount = currencyConversionService.convert(fromAccount.getCurrency(), toAccount.getCurrency(), transferDto.getAmount());
+
+        // Check for sufficient funds
+        if (fromAccount.getBalance().compareTo(transferDto.getAmount()) < 0) {
+            throw new RuntimeException("Insufficient funds in the source account");
+        }
+
+        // Perform the transfer
+        fromAccount.setBalance(fromAccount.getBalance().subtract(transferDto.getAmount()));
+        toAccount.setBalance(toAccount.getBalance().add(convertedAmount));
+
+        // Save both the accounts
+        accountRepository.save(fromAccount);
+        accountRepository.save(toAccount);
+
+        // Record the transactions
+        transactionService.recordTransaction(fromAccount.getId(), fromAccount.getOwnerId(), transferDto.getAmount().negate(), TransactionType.TRANSFER);
+        transactionService.recordTransaction(toAccount.getId(), toAccount.getOwnerId(), transferDto.getAmount(), TransactionType.TRANSFER);
     }
 
     @Transactional
@@ -233,19 +228,14 @@ public class AccountService {
         return newAccount;
     }
 
-    public ResponseEntity<?> performIdempotentTransfer(AccountTransferDto transferDto, Long userId, String idempotencyKey) {
+    public void performIdempotentTransfer(AccountTransferDto transferDto, Long userId, String idempotencyKey) {
         Object existingResponse = idempotencyCacheService.getResponse(idempotencyKey);
         if (existingResponse != null) {
-            return ResponseEntity.ok(existingResponse);
+            return;
         }
 
-        try {
-            transferMoney(transferDto, userId);
-            idempotencyCacheService.storeResponse(idempotencyKey, "Transfer successful");
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
+        transferMoney(transferDto, userId);
+        idempotencyCacheService.storeResponse(idempotencyKey, "Transfer successful");
     }
 
     public ResponseEntity<Account> performIdempotentDeposit(String accountId, BigDecimal amount, String idempotencyKey) {
