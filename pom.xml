@@ -193,6 +193,13 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring.boot.version}</version>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <release>17</release>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
@@ -201,6 +208,7 @@
         <module>Loan-Service</module>
         <module>User-Service</module>
         <module>API-Gateway</module>
+        <module>Monitor-Service</module>
     </modules>
 
 </project>
