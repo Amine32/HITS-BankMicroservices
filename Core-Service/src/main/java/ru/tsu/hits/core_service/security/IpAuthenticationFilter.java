@@ -7,6 +7,8 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.GenericFilterBean;
 
@@ -24,7 +26,8 @@ public class IpAuthenticationFilter extends GenericFilterBean {
         String serviceName = httpRequest.getHeader("Service-Name");
 
         if (trustedIps.contains(remoteIp) && Objects.equals(serviceName, "Loan-Service")) {
-            Authentication auth = new UsernamePasswordAuthenticationToken("internalService", null, List.of(() -> "ROLE_TRUSTED_SERVICE"));
+            List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_TRUSTED_SERVICE"));
+            Authentication auth = new UsernamePasswordAuthenticationToken("internalService", null, authorities);
             SecurityContextHolder.getContext().setAuthentication(auth);
         }
 
