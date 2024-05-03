@@ -25,7 +25,12 @@ function CreateRate({ show, onHide, onRateCreated }) {
             termLength: parseInt(termLength, 10)
         };
 
-        instance.post('http://localhost:8080/loan/api/rates', loanRateDto)
+        instance.post('http://localhost:8080/loan/api/rates', loanRateDto, {
+            headers: {
+                'Content-Type': 'application/json',
+                "Idempotency-Key": generateIdempotencyKey(),
+            }
+        })
             .then(response => {
                 setSuccess('Rate created successfully.');
                 onRateCreated(response.data);
