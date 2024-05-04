@@ -20,5 +20,5 @@ public class UserPreference {
     private String theme; // "dark" or "light"
 
     @ElementCollection
-    private Set<Long> hiddenAccountIds = new HashSet<>();
+    private Set<String> hiddenAccountIds = new HashSet<>();
 }

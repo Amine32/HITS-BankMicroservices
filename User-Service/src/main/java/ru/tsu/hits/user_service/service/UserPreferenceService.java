@@ -19,7 +19,7 @@ public class UserPreferenceService {
         return userPreferenceRepository.findById(userId).orElse(new UserPreference());
     }
 
-    public UserPreference saveUserPreferences(Long userId, String theme, Set<Long> hiddenAccountIds) {
+    public UserPreference saveUserPreferences(Long userId, String theme, Set<String> hiddenAccountIds) {
         UserPreference preferences = new UserPreference();
         preferences.setUserId(userId);
         preferences.setTheme(theme);
