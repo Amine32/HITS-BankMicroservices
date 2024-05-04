@@ -58,6 +58,7 @@ function ApplyLoanModal({ show, onHide, loanRates, onLoanApplied }) {
                         <Form.Label>Amount</Form.Label>
                         <Form.Control
                             type="number"
+                            min="0"
                             value={amount}
                             onChange={(e) => setAmount(e.target.value)}
                             placeholder="Enter amount"

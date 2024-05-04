@@ -6,7 +6,7 @@ import generateIdempotencyKey from '../helper/Idempotency';
 function TransferMoneyModal({ accounts, show, onHide, onTransfer, onAlert }) {
   const [fromAccountId, setAccountFrom] = useState("");
   const [toAccountId, setAccountTo] = useState("");
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState('');
 
   const handleTransfer = () => {
     instance
@@ -69,6 +69,7 @@ function TransferMoneyModal({ accounts, show, onHide, onTransfer, onAlert }) {
             <Form.Label>Amount</Form.Label>
             <Form.Control
               type="number"
+              min="0"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder="Enter amount to transfer"

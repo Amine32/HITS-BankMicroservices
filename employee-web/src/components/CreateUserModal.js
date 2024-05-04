@@ -10,7 +10,12 @@ const CreateUserModal = ({ show, handleClose, handleShowToast, addUser }) => {
     const handleCreateUser = (event) => {
         event.preventDefault();
 
-        instance.post('http://localhost:8080/user/api/users', { email, password, role })
+        instance.post('http://localhost:8080/user/api/users', { email, password, role }, {
+        headers: {
+            'Content-Type': 'application/json',
+            "Idempotency-Key": generateIdempotencyKey(),
+        }}
+    )
             .then((response) => {
                 handleClose(); // Close the modal
                 handleShowToast('User created successfully', 'success');
