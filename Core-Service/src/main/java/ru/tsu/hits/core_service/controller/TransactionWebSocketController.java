@@ -11,6 +11,7 @@ public class TransactionWebSocketController {
     @MessageMapping("/transaction")
     @SendTo("/topic/transactions")
     public Transaction sendTransactionUpdate(Transaction transaction) {
+        System.out.println(transaction);
         return transaction;
     }
 }

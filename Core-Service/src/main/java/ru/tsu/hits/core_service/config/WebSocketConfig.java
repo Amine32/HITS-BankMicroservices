@@ -12,7 +12,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws").withSockJS();
+        registry.addEndpoint("/ws")
+                .withSockJS()
+                .setWebSocketEnabled(true) // Enable raw WebSocket support
+                .setSessionCookieNeeded(false); // Do not rely on cookies
     }
 
     @Override
