@@ -22,20 +22,20 @@ function ViewTransactionsModal({ account, show, onHide }) {
   }
 
   useEffect(() => {
-    // if (show) {
-    //   connect();
-    // }
     if (show) {
-      instance
-        .get(`http://localhost:8080/core/api/transactions/${account.id}`)
-        .then((response) => {
-          setTransactions(response.data);
-        })
-        .catch((error) => {
-          console.error("Error fetching transactions", error);
-        });
+      connect();
     }
-  }, [show, account.id]);
+    // if (show) {
+    //   instance
+    //     .get(`http://localhost:8080/core/api/transactions/${account.id}`)
+    //     .then((response) => {
+    //       setTransactions(response.data);
+    //     })
+    //     .catch((error) => {
+    //       console.error("Error fetching transactions", error);
+    //     });
+    // }
+  }, [show]);
 
   return (
     <Modal show={show} onHide={onHide} size="lg">
