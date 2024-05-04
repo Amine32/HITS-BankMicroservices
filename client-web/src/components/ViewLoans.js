@@ -18,6 +18,7 @@ function ViewLoans() {
     fetchLoanRates();
   }, []);
 
+  
   const fetchLoans = async () => {
     // Endpoint to fetch loans for the customer
     const ownerId = sessionStorage.getItem("userId");
@@ -98,8 +99,8 @@ function ViewLoans() {
           {loans.map((loan) => (
             <tr key={loan.id}>
               <td>{loan.id}</td>
-              <td>${loan.amountOwed.toFixed(2)}</td>
-              <td>${loan.dailyPayment.toFixed(2)}</td>
+              <td>{loan.amountOwed.toFixed(2)} RUB</td>
+              <td>{loan.dailyPayment.toFixed(2)} RUB</td>
               <td>
                 <Button
                   className="app__button"
