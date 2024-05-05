@@ -27,6 +27,8 @@
         <maven.compiler.target>17</maven.compiler.target>
         <postgresql.version>42.7.3</postgresql.version>
         <jackson.datatype.version>2.17.0</jackson.datatype.version>
+        <spring.cloud.resilience4j.version>3.1.1</spring.cloud.resilience4j.version>
+        <resilience4j.version>2.2.0</resilience4j.version>
     </properties>
 
     <parent>
@@ -122,6 +124,16 @@
                 <groupId>com.fasterxml.jackson.datatype</groupId>
                 <artifactId>jackson-datatype-jsr310</artifactId>
                 <version>${jackson.datatype.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-circuitbreaker-resilience4j</artifactId>
+                <version>${spring.cloud.resilience4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.resilience4j</groupId>
+                <artifactId>resilience4j-reactor</artifactId>
+                <version>${resilience4j.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

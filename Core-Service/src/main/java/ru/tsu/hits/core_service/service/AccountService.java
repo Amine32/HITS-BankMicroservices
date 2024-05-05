@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ru.tsu.hits.core_service.dto.AccountTransferDto;
 import ru.tsu.hits.core_service.model.Account;
@@ -218,11 +217,11 @@ public class AccountService {
         }
     }
 
-    public Object checkAndCreateAccount(Long id, Currency currency, String idempotencyKey) {
+    public Account checkAndCreateAccount(Long id, Currency currency, String idempotencyKey) {
         // Check if the idempotency key is already present
         Object existingResponse = idempotencyCacheService.getResponse(idempotencyKey);
         if (existingResponse != null) {
-            return existingResponse;
+            return (Account) existingResponse;
         }
 
         Account newAccount = createAccount(id, currency);
@@ -240,25 +239,25 @@ public class AccountService {
         idempotencyCacheService.storeResponse(idempotencyKey, "Transfer successful");
     }
 
-    public ResponseEntity<Account> performIdempotentDeposit(String accountId, BigDecimal amount, String idempotencyKey) {
+    public Account performIdempotentDeposit(String accountId, BigDecimal amount, String idempotencyKey) {
         Object existingResponse = idempotencyCacheService.getResponse(idempotencyKey);
         if (existingResponse != null) {
-            return ResponseEntity.ok((Account) existingResponse);
+            return (Account) existingResponse;
         }
 
         Account account = depositMoney(accountId, amount); // Actual deposit logic
         idempotencyCacheService.storeResponse(idempotencyKey, account);
-        return ResponseEntity.ok(account);
+        return account;
     }
 
-    public ResponseEntity<Account> performIdempotentWithdrawal(String accountId, BigDecimal amount, String idempotencyKey) {
+    public Account performIdempotentWithdrawal(String accountId, BigDecimal amount, String idempotencyKey) {
         Object existingResponse = idempotencyCacheService.getResponse(idempotencyKey);
         if (existingResponse != null) {
-            return ResponseEntity.ok((Account) existingResponse);
+            return (Account) existingResponse;
         }
 
         Account account = withdrawMoney(accountId, amount); // Actual withdrawal logic
         idempotencyCacheService.storeResponse(idempotencyKey, account);
-        return ResponseEntity.ok(account);
+        return account;
     }
 }

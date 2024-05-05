@@ -68,7 +68,7 @@ public class RequestLoggingInterceptor implements HandlerInterceptor {
         logEntryDto.setPath(request.getRequestURI());
         logEntryDto.setStatus(response.getStatus());
         logEntryDto.setDuration(duration);
-        logEntryDto.setServiceId("UserService");
+        logEntryDto.setServiceId("CoreService");
         return logEntryDto;
     }
 }

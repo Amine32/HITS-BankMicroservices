@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import ru.tsu.hits.core_service.aspect.SimulatedServiceFailureException;
 
 @ControllerAdvice
 @RequiredArgsConstructor
@@ -35,6 +36,13 @@ public class GlobalExceptionHandler {
         log.error("Runtime exception: {}", ex.getMessage(), ex);
         request.setAttribute("exception", ex);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(value = {SimulatedServiceFailureException.class})
+    public ResponseEntity<Object> handleSimulatedServiceFailure(SimulatedServiceFailureException ex, HttpServletRequest request) {
+        log.error("Simulated service failure: {}", ex.getMessage(), ex);
+        request.setAttribute("exception", ex);
+        return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(ex.getMessage());
     }
 }
 

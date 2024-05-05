@@ -1,6 +1,58 @@
 spring:
   cloud:
     gateway:
+      routes:
+        - id: core-service-route
+          uri: lb://core-service
+          predicates:
+            - Path=/core/api/**
+          filters:
+            - StripPrefix=1
+            - name: Retry
+              args:
+                retries: 3
+                statuses: GATEWAY_TIMEOUT
+            - name: CircuitBreaker
+              args:
+                name: coreServiceCB
+                fallbackUri: forward:/fallback/core
+                failureRateThreshold: 70
+                waitDurationInOpenState: 10000
+                permittedNumberOfCallsInHalfOpenState: 5
+        - id: user-service-route
+          uri: lb://user-service
+          predicates:
+            - Path=/user/api/**
+          filters:
+            - StripPrefix=1
+            - name: Retry
+              args:
+                retries: 2
+                statuses: GATEWAY_TIMEOUT
+            - name: CircuitBreaker
+              args:
+                name: userServiceCB
+                fallbackUri: forward:/fallback/user
+                failureRateThreshold: 70
+                waitDurationInOpenState: 10000
+                permittedNumberOfCallsInHalfOpenState: 5
+        - id: loan-service-route
+          uri: lb://loan-service
+          predicates:
+            - Path=/loan/api/**
+          filters:
+            - StripPrefix=1
+            - name: Retry
+              args:
+                retries: 3
+                statuses: GATEWAY_TIMEOUT
+            - name: CircuitBreaker
+              args:
+                name: loanServiceCB
+                fallbackUri: forward:/fallback/loan
+                failureRateThreshold: 70
+                waitDurationInOpenState: 10000
+                permittedNumberOfCallsInHalfOpenState: 5
       globalcors:
         corsConfigurations:
           '[/**]':
@@ -16,5 +68,3 @@ spring:
               - PATCH
             allowedHeaders: '*'
             allowCredentials: true
-
-
