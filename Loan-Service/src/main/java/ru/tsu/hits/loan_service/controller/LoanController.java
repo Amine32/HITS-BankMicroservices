@@ -33,6 +33,7 @@ public class LoanController {
     @PreAuthorize("#userId == authentication.principal.userId or hasAuthority('EMPLOYEE')")
     public ResponseEntity<List<Loan>> getLoansByUser(@PathVariable Long userId) {
         List<Loan> loans = loanService.getLoansByOwner(userId);
+        System.out.println("Current loans: " + loans);
         return ResponseEntity.ok(loans);
     }
 
@@ -40,6 +41,7 @@ public class LoanController {
     @PreAuthorize("hasAuthority('EMPLOYEE')")
     public ResponseEntity<List<Loan>> getAllLoans() {
         List<Loan> loans = loanService.getAllLoans();
+        System.out.println("Current loans: " + loans);
         return ResponseEntity.ok(loans);
     }
 
@@ -50,9 +52,10 @@ public class LoanController {
 
     @GetMapping("/user/{userId}/overdue")
     @PreAuthorize("#userId == authentication.principal.userId or hasAuthority('EMPLOYEE')")
-    public ResponseEntity<List<Loan>> getOverdueLoansByUser(@PathVariable Long userId) {
-        List<Loan> loans = loanService.getOverdueLoansByUser(userId);
-        return ResponseEntity.ok(loans);
+    public List<Loan> getOverdueLoansByUser(@PathVariable Long userId) {
+        List<Loan> overdueLoans = loanService.getOverdueLoansByUser(userId);
+        System.out.println("overdueLoans found: " + overdueLoans);
+        return overdueLoans;
     }
 
     @GetMapping("/user/{userId}/credit-rating")

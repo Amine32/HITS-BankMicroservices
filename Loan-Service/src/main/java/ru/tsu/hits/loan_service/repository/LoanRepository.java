@@ -11,5 +11,5 @@ public interface LoanRepository extends JpaRepository<Loan, Long> {
 
     List<Loan> findAllByIsClosedFalse();
 
-    Optional<Loan> findAllByOwnerIdAndIsClosedFalse(Long ownerId);
+    List<Loan> findAllByOwnerIdAndIsClosedFalse(Long ownerId);
 }
