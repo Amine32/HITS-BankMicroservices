@@ -89,7 +89,6 @@ function ViewAccounts() {
           const result = sortedAccounts.filter(
             (el) => !hiddenAccounts.includes(el.id)
           );
-          //console.log(result);
           setAccounts(result); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         })
         .catch((error) => {
