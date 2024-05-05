@@ -1,48 +1,56 @@
-import React, {useEffect, useState} from "react";
-import {Button, Modal, Table} from "react-bootstrap";
-import {instance} from "../api/instance";
+import React, { useEffect, useState } from "react";
+import { Button, Modal, Table } from "react-bootstrap";
+import { instance } from "../api/instance";
 import SockJS from "sockjs-client";
-import {Stomp} from "@stomp/stompjs";
+import { Stomp } from "@stomp/stompjs";
 
-function ViewTransactionsModal({account, show, onHide}) {
+function ViewTransactionsModal({ account, show, onHide }) {
     const [transactions, setTransactions] = useState([]);
-    let stompClient;
-
-    function connect() {
-        const socket = new SockJS("http://localhost:8080/core/ws");
-        stompClient = Stomp.over(socket);
-
-        stompClient.connect({}, function (frame) {
-            console.log("Connected: " + frame);
-            stompClient.subscribe("/topic/transactions", function (transaction) {
-                const message = JSON.parse(transaction.body);
-                console.log(message);
-            });
-        });
-    }
 
     useEffect(() => {
-        if (show) {
-            connect();
-        }
-        if (show) {
-            instance
-                .get(`http://localhost:8080/core/api/transactions/${account.id}`)
-                .then((response) => {
-                    setTransactions(response.data);
-                })
-                .catch((error) => {
-                    console.error("Error fetching transactions", error);
+        const connectWebSocket = () => {
+            // Retrieve the authToken from sessionStorage
+            const token = sessionStorage.getItem("authToken");
+            const socket = new SockJS(`http://localhost:8081/ws?access_token=${token}`);
+            const client = Stomp.over(() => socket);  // Ensuring auto-reconnect works
+
+            client.connect({}, (frame) => {
+                console.log('Connected: ' + frame);
+                client.subscribe('/topic/transactions', (message) => {
+                    const newTransaction = JSON.parse(message.body);
+                    setTransactions(prev => [...prev, newTransaction]);
                 });
+            }, (error) => {
+                console.error('Error connecting to WebSocket:', error);
+            });
+
+            return () => {
+                client.disconnect(() => {
+                    console.log("Disconnected");
+                });
+            };
+        };
+
+        if (show) {
+            const disconnect = connectWebSocket();
+            return disconnect;  // Ensures cleanup is called on component unmount or hide
         }
     }, [show]);
 
+    useEffect(() => {
+        if (show) {
+            instance.get(`http://localhost:8080/core/api/transactions/${account.id}`)
+                .then(response => setTransactions(response.data))
+                .catch(error => console.error("Error fetching transactions", error));
+        }
+    }, [show, account.id]);
+
     return (
         <Modal show={show} onHide={onHide} size="lg">
-            <Modal.Header className="app__modal" closeButton>
+            <Modal.Header closeButton>
                 <Modal.Title>Transaction History for Account {account.id}</Modal.Title>
             </Modal.Header>
-            <Modal.Body className="app__modal">
+            <Modal.Body>
                 <Table striped bordered hover>
                     <thead>
                     <tr>
@@ -52,22 +60,18 @@ function ViewTransactionsModal({account, show, onHide}) {
                     </tr>
                     </thead>
                     <tbody>
-                    {transactions.map((transaction) => (
+                    {transactions.map(transaction => (
                         <tr key={transaction.id}>
-                            <td>
-                                {new Date(transaction.transactionDate).toLocaleString()}
-                            </td>
+                            <td>{new Date(transaction.transactionDate).toLocaleString()}</td>
                             <td>{transaction.transactionType}</td>
-                            <td>{transaction.amount.toFixed(2)}</td>
+                            <td>${transaction.amount.toFixed(2)}</td>
                         </tr>
                     ))}
                     </tbody>
                 </Table>
             </Modal.Body>
-            <Modal.Footer className="app__modal">
-                <Button className="app__button" onClick={onHide}>
-                    Close
-                </Button>
+            <Modal.Footer>
+                <Button onClick={onHide}>Close</Button>
             </Modal.Footer>
         </Modal>
     );
