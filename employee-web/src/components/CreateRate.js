@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Modal, Button, Form, Alert } from 'react-bootstrap';
 import { instance } from "../api/instance"
+import generateIdempotencyKey from "../helper/Idempotency";
 
 function CreateRate({ show, onHide, onRateCreated }) {
     const [name, setName] = useState('');

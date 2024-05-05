@@ -7,6 +7,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Navbar, Nav, Container } from "react-bootstrap";
 import { useTheme } from "./hooks/use-theme";
 import "./App.css";
+import Message from "./components/Message";
 
 function App() {
   const { theme, setTheme } = useTheme();
@@ -27,6 +28,7 @@ function App() {
 
   return (
     <Router>
+      <Message/>
       <div className="app__background h-100">
         {isAuthenticated && (
           <Navbar className="app__nav" expand="lg">

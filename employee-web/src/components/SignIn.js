@@ -4,6 +4,7 @@ import { Card, Form, Button, Alert, Spinner } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import decodeJWTAndSave from "../helper/jwtDecode";
 import { instance } from "../api/instance";
+import generateIdempotencyKey from "../helper/Idempotency";
 
 function SignIn() {
   const [email, setEmail] = useState("");

@@ -1,13 +1,14 @@
 import React, {useState, useEffect} from 'react';
 import { instance } from '../api/instance';
 import {Table} from 'react-bootstrap';
-import {useNavigate} from "react-router-dom";
 import ViewTransactionsModal from "./ViewTransactionsModal";
+import ViewHiddenAccounts from './ViewHiddenAccountsModal';
 
 function ViewAccounts() {
     const [accounts, setAccounts] = useState([]);
     const [selectedAccountId, setSelectedAccountId] = useState(null);
     const [showTransactionsModal, setShowTransactionsModal] = useState(false);
+    const [showTransactionsModalHiddenView, setShowTransactionsModalHiddenView] = useState(false);
 
     useEffect(() => {
         instance.get('http://localhost:8080/core/api/accounts/all')
@@ -21,6 +22,10 @@ function ViewAccounts() {
     const handleViewTransactions = (accountId) => {
         setSelectedAccountId(accountId);
         setShowTransactionsModal(true);
+    };
+
+    const handleViewHiddenAccounts = () => {
+        setShowTransactionsModalHiddenView(true);
     };
 
     return (
@@ -43,6 +48,7 @@ function ViewAccounts() {
                         <td>{account.balance}</td>
                         <td>
                             <button className='app__button' onClick={() => handleViewTransactions(account.id)}>View Transactions</button>
+                            <button className='app__button' onClick={() => handleViewHiddenAccounts()}>Hidden Accounts</button>
                         </td>
                     </tr>
                 ))}
@@ -52,6 +58,11 @@ function ViewAccounts() {
                 accountId={selectedAccountId}
                 show={showTransactionsModal}
                 onHide={() => setShowTransactionsModal(false)}
+            />
+            <ViewHiddenAccounts
+                accountId={selectedAccountId}
+                show={showTransactionsModalHiddenView}
+                onHide={() => setShowTransactionsModalHiddenView(false)}
             />
         </div>
     );

@@ -11,7 +11,8 @@ import generateIdempotencyKey from "../helper/Idempotency";
 
 function ViewAccounts() {
   const [accounts, setAccounts] = useState([]);
-  const [preferences, setPreferences] = useState([]);
+  const [preferences, setPreferences] = useState();
+  const [hiddenAccounts, setHiddenAcсounts] = useState([]);
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [alert, setAlert] = useState({
     show: false,
@@ -28,8 +29,8 @@ function ViewAccounts() {
   });
 
   useEffect(() => {
-    fetchAccounts();
     fetchPreferences();
+    fetchAccounts();
   }, []);
 
   const handlePreferences = () => {
@@ -38,9 +39,9 @@ function ViewAccounts() {
       .post(
         `http://localhost:8080/user/api/userPreferences/${ownerId}`,
         {
-            userId: preferences.userId,
-            theme: preferences.theme,
-            hiddenAccountIds: preferences.hiddenAccountIds,
+          userId: preferences.userId,
+          theme: preferences.theme,
+          hiddenAccountIds: hiddenAccounts,
         },
         {
           headers: {
@@ -49,17 +50,15 @@ function ViewAccounts() {
           },
         }
       )
-      .then((error) => {
+      .catch((error) => {
         console.error("Error fetching preferences ", error);
-    })
+      });
   };
 
   const onHideAccount = (id) => {
-    setPreferences(preferences => ({
-        hiddenAccountIds: [...preferences.hiddenAccountIds, id]
-      }))
-      handlePreferences()
-  }
+    setHiddenAcсounts((hiddenAccounts) => [...hiddenAccounts, id]);
+    handlePreferences();
+  };
 
   const fetchPreferences = () => {
     const ownerId = sessionStorage.getItem("userId");
@@ -69,10 +68,8 @@ function ViewAccounts() {
           withCredentials: true,
         })
         .then((response) => {
+          setHiddenAcсounts(response.data.hiddenAccountIds);
           setPreferences(response.data);
-          const result = accounts.filter((el) => !preferences.hiddenAccountIds.includes(el));
-
-          setAccounts(result);
         })
         .catch((error) => {
           console.error("Error fetching preferences ", error);
@@ -89,7 +86,11 @@ function ViewAccounts() {
         })
         .then((response) => {
           const sortedAccounts = response.data.sort((a, b) => a.id - b.id);
-          setAccounts(sortedAccounts);
+          const result = sortedAccounts.filter(
+            (el) => !hiddenAccounts.includes(el.id)
+          );
+          //console.log(result);
+          setAccounts(result); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         })
         .catch((error) => {
           console.error("Error fetching accounts", error);
@@ -198,8 +199,9 @@ function ViewAccounts() {
                     >
                       Close Account
                     </Button>
-                    <Button className="app__button ms-1" 
-                    //onClick={onHideAccount(account.id)}
+                    <Button
+                      className="app__button ms-1"
+                      onClick={() => onHideAccount(account.id)}
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
