@@ -43,6 +43,8 @@ public class UserService implements UserDetailsService {
 
         User savedUser = userRepository.save(user);
 
+        System.out.println("Saved user roles: " + user.getRoles());
+
         //create default user preference
         userPreferenceService.createUserPreference(savedUser.getId());
 
@@ -69,7 +71,7 @@ public class UserService implements UserDetailsService {
         Optional<User> userOptional = userRepository.findById(id);
         if (userOptional.isPresent()) {
             User user = userOptional.get();
-            user.setActive(false);
+            user.setActive(!user.isActive());
             userRepository.save(user);
             return true;
         }

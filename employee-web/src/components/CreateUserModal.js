@@ -6,17 +6,20 @@ import generateIdempotencyKey from "../helper/Idempotency";
 const CreateUserModal = ({ show, handleClose, handleShowToast, addUser }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [role, setRole] = useState('CLIENT');
+    const [role, setRole] = useState('CLIENT'); // This can be an array if multiple roles per user are allowed.
 
     const handleCreateUser = (event) => {
         event.preventDefault();
 
-        instance.post('http://localhost:8080/user/api/users', { email, password, role }, {
-        headers: {
-            'Content-Type': 'application/json',
-            "Idempotency-Key": generateIdempotencyKey(),
-        }}
-    )
+        // Ensure role is sent as an array to match the backend expectation.
+        const roles = [role]; // Wrap the role in an array.
+
+        instance.post('http://localhost:8080/user/api/users', { email, password, roles }, {
+            headers: {
+                'Content-Type': 'application/json',
+                "Idempotency-Key": generateIdempotencyKey(),
+            }
+        })
             .then((response) => {
                 handleClose(); // Close the modal
                 handleShowToast('User created successfully', 'success');

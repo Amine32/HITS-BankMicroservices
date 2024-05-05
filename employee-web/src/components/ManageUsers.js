@@ -1,8 +1,7 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import { instance } from '../api/instance';
-import {Table, Button, Col, Row} from 'react-bootstrap';
-import {PlusCircleFill} from "react-bootstrap-icons";
-import { Toast, ToastContainer } from 'react-bootstrap';
+import { Table, Button, Col, Row, Toast, ToastContainer } from 'react-bootstrap';
+import { PlusCircleFill } from "react-bootstrap-icons";
 import CreateUserModal from "./CreateUserModal";
 
 function ManageUsers() {
@@ -16,12 +15,11 @@ function ManageUsers() {
 
     useEffect(() => {
         // Fetch the users from your API
-        instance.get('http://localhost:8080/user/api/users', {withCredentials: true})
+        instance.get('http://localhost:8080/user/api/users', { withCredentials: true })
             .then(response => setUsers(response.data))
             .catch(error => console.error('Error fetching users', error));
     }, []);
 
-    // Function to handle the opening and closing of the modal
     const handleShowModal = () => setShowModal(true);
     const handleCloseModal = () => setShowModal(false);
 
@@ -34,17 +32,15 @@ function ManageUsers() {
     };
 
     const handleBlockToggle = (userId, isActive) => {
-        // Toggle user block status
-        instance.put(`http://localhost:8080/user/api/users/${userId}/block`, {isActive: !isActive}, {withCredentials: true})
+        instance.put(`http://localhost:8080/user/api/users/${userId}/block`, { isActive: !isActive }, { withCredentials: true })
             .then(() => {
-                // Update the local state to reflect the change
                 setUsers(users.map(user => {
                     if (user.id === userId) {
-                        return {...user, isActive: !user.isActive};
+                        return { ...user, isActive: !user.isActive };
                     }
-                    handleShowToast('User block status updated successfully!', 'success');
                     return user;
                 }));
+                handleShowToast('User block status updated successfully!', 'success');
             })
             .catch(error => console.error('Error updating user status', error));
     };
@@ -73,10 +69,10 @@ function ManageUsers() {
                     {users.map((user) => (
                         <tr key={user.id}>
                             <td>{user.email}</td>
-                            <td>{user.role}</td>
+                            <td>{user.roles.join(', ')}</td> {/* Display all roles */}
                             <td>{user.isActive ? 'Blocked' : 'Active'}</td>
                             <td>
-                                <Button className='app__button' onClick={() => handleBlockToggle(user.id, user.isActive)}>
+                                <Button className='app__button' onClick={() => handleBlockToggle(user.id, !user.isActive)}>
                                     {user.isActive ? 'Unblock' : 'Block'}
                                 </Button>
                             </td>
