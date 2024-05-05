@@ -3,7 +3,6 @@ package ru.tsu.hits.loan_service.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -64,29 +63,51 @@ public class LoanService {
     }
 
     public Loan repayLoan(Long loanId, BigDecimal amount) {
+        if (amount == null) {
+            throw new IllegalArgumentException("Repayment amount cannot be null");
+        }
+
         Loan loan = loanRepository.findById(loanId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid loan ID"));
 
-        loan.setAmountPaid(loan.getAmountPaid().add(amount));
-        loan.setAmountOwed(loan.getOriginalAmount().subtract(loan.getAmountPaid()));
-        loan.setLastPaymentDate(LocalDateTime.now());
+        // Initialize amountPaid if null
+        if (loan.getAmountPaid() == null) {
+            loan.setAmountPaid(BigDecimal.ZERO);
+        }
 
+        // Safe addition of the amount to amountPaid
+        loan.setAmountPaid(loan.getAmountPaid().add(amount));
+
+        // Ensure originalAmount is not null
+        if (loan.getOriginalAmount() == null) {
+            throw new IllegalStateException("Original amount should not be null");
+        }
+
+        // Calculate new amount owed
+        loan.setAmountOwed(loan.getOriginalAmount().subtract(loan.getAmountPaid()));
+
+        // Update last payment date and check if the loan is closed
+        loan.setLastPaymentDate(LocalDateTime.now());
         if (loan.getAmountOwed().compareTo(BigDecimal.ZERO) <= 0) {
             loan.setClosed(true);
             loan.setClosedAt(LocalDateTime.now());
         }
 
+        // Integrate with external services
         String primaryAccountId = coreServiceClient.getPrimaryAccountId(loan.getOwnerId());
         coreServiceClient.transferToMasterAccount(primaryAccountId, amount);
 
+        // Create payment record
         paymentService.createPayment(Payment.builder()
                 .loan(loan)
                 .paymentAmount(amount)
                 .paymentDate(LocalDateTime.now())
                 .build());
 
+        // Save updated loan information
         return loanRepository.save(loan);
     }
+
 
     @Scheduled(cron = "0 0 0 * * ?") // Run every day at midnight
     public void processDailyPayments() {
@@ -149,19 +170,15 @@ public class LoanService {
         return newLoan;
     }
 
-    public ResponseEntity<Object> repayLoanWithIdempotency(Long loanId, BigDecimal paymentAmount, String idempotencyKey) {
+    public Loan repayLoanWithIdempotency(Long loanId, BigDecimal paymentAmount, String idempotencyKey) {
         Object existingResponse = idempotencyCacheService.getResponse(idempotencyKey);
         if (existingResponse != null) {
-            return ResponseEntity.ok(existingResponse);
+            return (Loan) existingResponse;
         }
 
-        try {
-            repayLoan(loanId, paymentAmount);
-            idempotencyCacheService.storeResponse(idempotencyKey, "Loan repayment successful");
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Loan repayment failed");
-        }
+        Loan loan = repayLoan(loanId, paymentAmount);
+        idempotencyCacheService.storeResponse(idempotencyKey, "Loan repayment successful");
+        return loan;
     }
 
     public ResponseEntity<?> payOffLoanWithIdempotency(Long loanId, BigDecimal amount, String idempotencyKey) {

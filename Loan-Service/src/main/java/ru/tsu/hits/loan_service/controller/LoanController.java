@@ -25,8 +25,8 @@ public class LoanController {
     }
 
     @PostMapping("/{loanId}/repayments")
-    public ResponseEntity<?> makeRepayment(@PathVariable Long loanId, @RequestBody PaymentDto paymentDto, @RequestHeader("Idempotency-Key") String idempotencyKey) {
-        return loanService.repayLoanWithIdempotency(loanId, paymentDto.getPaymentAmount(), idempotencyKey);
+    public Loan makeRepayment(@PathVariable Long loanId, @RequestBody BigDecimal paymentAmount, @RequestHeader("Idempotency-Key") String idempotencyKey) {
+        return loanService.repayLoanWithIdempotency(loanId, paymentAmount, idempotencyKey);
     }
 
     @GetMapping("/user/{userId}")

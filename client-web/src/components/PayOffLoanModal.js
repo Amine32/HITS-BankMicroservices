@@ -9,9 +9,7 @@ function PayOffLoanModal({loanId, show, onHide, fetchLoans}) {
     const payOffLoan = () => {
         instance
           .post(
-            `http://localhost:8080/loan/api/loans/${loanId}/repayments`,
-            { withCredentials: true },
-            {
+            `http://localhost:8080/loan/api/loans/${loanId}/repayments`, parseFloat(amount), {
               headers: {
                 "Content-Type": "application/json",
                 "Idempotency-Key": generateIdempotencyKey(),
