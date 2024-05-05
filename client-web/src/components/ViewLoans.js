@@ -57,28 +57,6 @@ function ViewLoans() {
       });
   };
 
-  const payOffLoan = (loanId) => {
-    instance
-      .post(
-        `http://localhost:8080/loan/api/loans/payoff/${loanId}`,
-        { withCredentials: true },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            "Idempotency-Key": generateIdempotencyKey(),
-          },
-        }
-      )
-      .then((response) => {
-        if (response.status === 200) {
-          fetchLoans(); // Refresh the loans list after successful payoff
-        }
-      })
-      .catch((error) => {
-        console.error("Error paying off loan", error);
-      });
-  };
-
   return (
     <>
       <Button
@@ -149,6 +127,8 @@ function ViewLoans() {
         <PayOffLoanModal
           show={showPayOffLoan}
           onHide={() => setShowPayOffLoan(false)}
+          loanId={selectedLoan}
+          fetchLoans={() => fetchLoans()}
         />
       )}
     </>
