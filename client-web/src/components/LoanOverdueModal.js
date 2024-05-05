@@ -28,7 +28,6 @@ function LoanOverdueModal({ show, onHide }) {
     <ListGroup>
       <ListGroup.Item>Loan ID: {loan.id}</ListGroup.Item>
       <ListGroup.Item>Rate ID: {loan.rate.id}</ListGroup.Item>
-      <ListGroup.Item>Amount: {loan.amount.toFixed(2)}</ListGroup.Item>
       <ListGroup.Item>Due date: {loan.dueDate}</ListGroup.Item>
       <ListGroup.Item>Amount owed: {loan.amountOwed}</ListGroup.Item>
       <ListGroup.Item>Original amount: {loan.originalAmount}</ListGroup.Item>
