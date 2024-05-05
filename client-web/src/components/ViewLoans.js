@@ -5,6 +5,7 @@ import ApplyLoanModal from "./ApplyLoanModal";
 import generateIdempotencyKey from "../helper/Idempotency";
 import LoanOverdueModal from "./LoanOverdueModal";
 import ClientRatingModal from "./ClientRatingModal";
+import PayOffLoanModal from "./PayOffLoanModal";
 
 function ViewLoans() {
   const [loans, setLoans] = useState([]);
@@ -12,13 +13,19 @@ function ViewLoans() {
   const [showApplyLoanModal, setShowApplyLoanModal] = useState(false);
   const [showOverdueLoanModal, setShowOverdueLoanModal] = useState(false);
   const [showClientRatring, setShowClientRatring] = useState(false);
+  const [showPayOffLoan, setShowPayOffLoan] = useState(false);
+  const [selectedLoan, setSelectedLoan] = useState(null);
 
   useEffect(() => {
     fetchLoans();
     fetchLoanRates();
   }, []);
 
-  
+  const handleLoanRepayShow = (loanId = null) => {
+    setShowPayOffLoan(true);
+    setSelectedLoan(loanId);
+  };
+
   const fetchLoans = async () => {
     // Endpoint to fetch loans for the customer
     const ownerId = sessionStorage.getItem("userId");
@@ -104,7 +111,7 @@ function ViewLoans() {
               <td>
                 <Button
                   className="app__button"
-                  onClick={() => payOffLoan(loan.id)}
+                  onClick={() => handleLoanRepayShow(loan.id)}
                 >
                   Pay Off
                 </Button>
@@ -134,8 +141,16 @@ function ViewLoans() {
       />
 
       <ClientRatingModal
-      show={showClientRatring}
-      onHide={() => setShowClientRatring(false)}/>
+        show={showClientRatring}
+        onHide={() => setShowClientRatring(false)}
+      />
+
+      {selectedLoan && (
+        <PayOffLoanModal
+          show={showPayOffLoan}
+          onHide={() => setShowPayOffLoan(false)}
+        />
+      )}
     </>
   );
 }
