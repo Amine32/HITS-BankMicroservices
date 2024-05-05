@@ -98,18 +98,6 @@ function ViewAccounts() {
     }
   };
 
-  // const finalAccounts = () => {
-  //     var finAcc;
-  //     for (var i=0; i<accounts.length; i++) {
-  //        if (preferences.indexOf( accounts[i] ) == -1)
-  //         {
-  //             finAcc.push(accounts[i])
-  //         }
-  //     }
-  //     console.log(finAcc)
-  //     return finAcc;
-  // }
-
   const handleModalShow = (modalName, account = null) => {
     setShowModal({ ...showModal, [modalName]: true });
     setSelectedAccount(account);

@@ -7,9 +7,6 @@ function ViewTransactions({ accountId }) {
 
     useEffect(() => {
         instance.get(`http://localhost:8080/api/accounts/${accountId}/transactions`, {
-            headers: {
-                // Include any necessary headers
-            }
         }).then(response => {
             setTransactions(response.data);
         }).catch(error => {
