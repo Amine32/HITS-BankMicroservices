@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Modal, Form, Button } from 'react-bootstrap';
 import { instance } from "../api/instance"
+import generateIdempotencyKey from "../helper/Idempotency";
 
 const CreateUserModal = ({ show, handleClose, handleShowToast, addUser }) => {
     const [email, setEmail] = useState('');
