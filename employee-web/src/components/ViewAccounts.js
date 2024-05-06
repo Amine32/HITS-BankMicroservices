@@ -8,7 +8,7 @@ function ViewAccounts() {
     const [accounts, setAccounts] = useState([]);
     const [selectedAccountId, setSelectedAccountId] = useState(null);
     const [showTransactionsModal, setShowTransactionsModal] = useState(false);
-    const [showTransactionsModalHiddenView, setShowTransactionsModalHiddenView] = useState(false);
+    const [showModalHiddenView, setShowModalHiddenView] = useState(false);
 
     useEffect(() => {
         instance.get('http://localhost:8080/core/api/accounts/all')
@@ -24,8 +24,9 @@ function ViewAccounts() {
         setShowTransactionsModal(true);
     };
 
-    const handleViewHiddenAccounts = () => {
-        setShowTransactionsModalHiddenView(true);
+    const handleViewHiddenAccounts = (accountId) => {
+        setSelectedAccountId(accountId);
+        setShowModalHiddenView(true);
     };
 
     return (
@@ -48,7 +49,7 @@ function ViewAccounts() {
                         <td>{account.balance}</td>
                         <td>
                             <button className='app__button' onClick={() => handleViewTransactions(account.id)}>View Transactions</button>
-                            <button className='app__button' onClick={() => handleViewHiddenAccounts()}>Hidden Accounts</button>
+                            <button className='app__button ms-2' onClick={() => handleViewHiddenAccounts(account.ownerId)}>Hidden Accounts</button>
                         </td>
                     </tr>
                 ))}
@@ -61,8 +62,8 @@ function ViewAccounts() {
             />
             <ViewHiddenAccounts
                 accountId={selectedAccountId}
-                show={showTransactionsModalHiddenView}
-                onHide={() => setShowTransactionsModalHiddenView(false)}
+                show={showModalHiddenView}
+                onHide={() => setShowModalHiddenView(false)}
             />
         </div>
     );

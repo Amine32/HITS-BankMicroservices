@@ -60,7 +60,7 @@ function ViewLoans() {
                 <ListGroup.Item key={loan.id}>
                   Loan ID: {loan.id} - Amount: {loan.amount}
                   <Button
-                    variant="primary"
+                    className="app__button"
                     onClick={() => setSelectedLoan(loan)}
                     style={{ float: "right" }}
                   >

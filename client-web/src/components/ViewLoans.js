@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { Button, Table } from "react-bootstrap";
 import { instance } from "../api/instance";
 import ApplyLoanModal from "./ApplyLoanModal";
-import generateIdempotencyKey from "../helper/Idempotency";
 import LoanOverdueModal from "./LoanOverdueModal";
 import ClientRatingModal from "./ClientRatingModal";
 import PayOffLoanModal from "./PayOffLoanModal";
