@@ -1,13 +1,11 @@
 package ru.tsu.hits.core_service.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ru.tsu.hits.core_service.dto.AccountTransferDto;
 import ru.tsu.hits.core_service.model.Account;
 import ru.tsu.hits.core_service.model.Currency;
-import ru.tsu.hits.core_service.security.JwtUtil;
 import ru.tsu.hits.core_service.service.AccountService;
 
 import javax.security.auth.login.AccountNotFoundException;
@@ -20,7 +18,6 @@ import java.util.List;
 public class AccountController {
 
     private final AccountService accountService;
-    private final JwtUtil jwtUtil;
 
     @PostMapping("/{id}")
     public Account createAccount(@PathVariable Long id, @RequestBody Currency currency, @RequestHeader("Idempotency-Key") String idempotencyKey) {
@@ -80,11 +77,8 @@ public class AccountController {
     }
 
     @PostMapping("/transfer")
-    public void transferFunds(@RequestBody AccountTransferDto transferDto, HttpServletRequest request, @RequestHeader("Idempotency-Key") String idempotencyKey) {
-        String jwt = jwtUtil.getJwtFromRequest(request);
-        Long userId = jwtUtil.getUserIdFromJwtToken(jwt);
-
-        accountService.performIdempotentTransfer(transferDto, userId, idempotencyKey);
+    public void transferFunds(@RequestBody AccountTransferDto transferDto, @RequestHeader("Idempotency-Key") String idempotencyKey) {
+        accountService.performIdempotentTransfer(transferDto, idempotencyKey);
     }
 
     @PostMapping("/transfer/from-master/{toAccountId}")

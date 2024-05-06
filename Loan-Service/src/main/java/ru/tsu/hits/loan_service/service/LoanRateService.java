@@ -36,10 +36,6 @@ public class LoanRateService {
         return loanRateRepository.findById(id);
     }
 
-    public Optional<LoanRate> getLoanRateByName(String name) {
-        return loanRateRepository.findByName(name);
-    }
-
     @Transactional
     public LoanRate updateLoanRate(Long id, LoanRateDto loanRateDto) {
         LoanRate loanRate = loanRateRepository.findById(id)
