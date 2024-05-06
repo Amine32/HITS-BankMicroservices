@@ -35,8 +35,7 @@ function CreateRate({ show, onHide, onRateCreated }) {
             .then(response => {
                 setSuccess('Rate created successfully.');
                 onRateCreated(response.data);
-                resetForm();
-                onHide();  // Close modal on success
+                resetForm()
             })
             .catch(error => {
                 setError('Failed to create rate. ' + error.message);

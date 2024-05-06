@@ -3,7 +3,8 @@ import { instance } from "../api/instance";
 import { ListGroup, Button, Card, Table } from "react-bootstrap";
 import LoanDetails from "./LoanDetails";
 import CreateRate from "./CreateRate";
-import EditRate from "./EditRate"; // Import the LoanDetails component
+import EditRate from "./EditRate";
+import LoanOverdueModal from "./LoanOverdueModal";
 
 function ViewLoans() {
   const [loans, setLoans] = useState([]);
@@ -12,6 +13,7 @@ function ViewLoans() {
   const [selectedRate, setSelectedRate] = useState(null);
   const [showCreateRateModal, setShowCreateRateModal] = useState(false);
   const [showEditRateModal, setShowEditRateModal] = useState(false);
+  const [showOverdueModal, setShowOverdueModal] = useState(false);
 
   useEffect(() => {
     instance
@@ -44,6 +46,17 @@ function ViewLoans() {
 
   return (
     <div>
+      <Button
+        className="app__button mt-2"
+        onClick={() => setShowOverdueModal(true)}
+      >
+        Overdue Loans
+      </Button>
+
+      <LoanOverdueModal
+        show={showOverdueModal}
+        onHide={() => setShowOverdueModal(false)}
+      />
       <Card style={{ width: "50rem", margin: "2rem auto" }}>
         <Card.Header>
           <strong>Loan List</strong>

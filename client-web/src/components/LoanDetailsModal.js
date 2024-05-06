@@ -16,7 +16,7 @@ function LoanDetailsModal({ loan, show, onHide }) {
           <ListGroup.Item>
             Original amount: {loan.originalAmount}
           </ListGroup.Item>
-          {/* More loan details go here */}
+          <ListGroup.Item>Created at: {loan.createdAt}</ListGroup.Item>
         </ListGroup>
       </Modal.Body>
       <Modal.Footer className="app__modal">

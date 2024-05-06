@@ -31,7 +31,7 @@ function LoanOverdueModal({ show, onHide }) {
       <ListGroup.Item>Due date: {loan.dueDate}</ListGroup.Item>
       <ListGroup.Item>Amount owed: {loan.amountOwed}</ListGroup.Item>
       <ListGroup.Item>Original amount: {loan.originalAmount}</ListGroup.Item>
-      {/* More loan details go here */}
+      <ListGroup.Item>Created at: {loan.createdAt}</ListGroup.Item>
     </ListGroup>
   ));
 

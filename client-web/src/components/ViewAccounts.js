@@ -116,7 +116,7 @@ function ViewAccounts() {
 
   const handleAccountActionComplete = () => {
     handleModalClose();
-    fetchAccounts(); // Refresh the accounts after any modal action
+    fetchAccounts(); 
   };
 
   return (

@@ -34,7 +34,6 @@ function SignIn() {
         sessionStorage.setItem("authToken", response.data.token);
         setLoading(false);
         decodeJWTAndSave(response.data.token);
-        // Based on response structure; redirect as necessary
         navigate("/view-accounts");
       })
       .catch((error) => {

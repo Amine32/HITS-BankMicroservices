@@ -9,7 +9,6 @@ function ViewTransactionsModal({ account, show, onHide }) {
 
     useEffect(() => {
         const connectWebSocket = () => {
-            // Retrieve the authToken from sessionStorage
             const token = sessionStorage.getItem("authToken");
             const socket = new SockJS(`http://localhost:8081/ws?access_token=${token}`);
             const client = Stomp.over(() => socket);  // Ensuring auto-reconnect works
@@ -33,7 +32,7 @@ function ViewTransactionsModal({ account, show, onHide }) {
 
         if (show) {
             const disconnect = connectWebSocket();
-            return disconnect;  // Ensures cleanup is called on component unmount or hide
+            return disconnect;  
         }
     }, [show]);
 
