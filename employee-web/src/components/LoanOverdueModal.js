@@ -15,12 +15,20 @@ function LoanOverdueModal({ show, onHide }) {
         })
         .then((response) => {
           setLoans(response.data);
+          
         })
         .catch((error) => {
           console.error("Error fetching loans overdue", error);
         });
     }
   };
+
+  const handleLoanOverdue = (ownerId) => {
+    fetchLoanOverdue(ownerId);
+    var overdueIds;
+    {loans.map((loan) => (overdueIds.push(loan.id)))}
+    return overdueIds;
+  }
 
   useEffect(() => {
     instance
@@ -38,7 +46,7 @@ function LoanOverdueModal({ show, onHide }) {
       <Modal.Body className="app__modal">
         <ListGroup>
           {users.map((user) => (
-            <ListGroup.Item>User ID: user.id, overdue loans ids: {fetchLoanOverdue(user.id)}</ListGroup.Item>
+            <ListGroup.Item key={user.id}>User ID: {user.id}, loanIds: {handleLoanOverdue(user.id)}</ListGroup.Item>
           ))}
         </ListGroup>
       </Modal.Body>
