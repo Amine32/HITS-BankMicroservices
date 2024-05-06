@@ -13,7 +13,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws").setAllowedOrigins("http://localhost:3000", "http://localhost:3001")
+        registry.addEndpoint("/ws").setAllowedOrigins("http://localhost:3000", "http://localhost:3001", "http://localhost:3002")
                 .withSockJS()
                 .setWebSocketEnabled(true) // Enable raw WebSocket support
                 .setSessionCookieNeeded(false) // Do not rely on cookies

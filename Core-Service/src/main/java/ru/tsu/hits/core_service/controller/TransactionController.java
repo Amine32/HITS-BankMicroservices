@@ -18,12 +18,4 @@ public class TransactionController {
     public List<Transaction> getTransactions(@PathVariable String accountId) {
         return transactionService.getTransactionsByAccountId(accountId);
     }
-
-    /*
-    @PostMapping
-    @PreAuthorize("hasRole('TRUSTED_SERVICE')")
-    public void recordTransaction(@RequestBody AccountTransactionDto dto) {
-        transactionService.recordTransaction(dto.getAccountId(), dto.getAmount(), TransactionType.valueOf(dto.getTransactionType()));
-    }
-    */
 }
