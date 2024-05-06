@@ -14,7 +14,6 @@ var firebaseConfig = {
   // messagingSenderId: "402528823927",
   // appId: "1:402528823927:web:e0234b4fcc950e3e383472",
 
-
   apiKey: "AIzaSyDLICkZEA7M71JJXOEhZ1JfCKs_fc3Oyjs",
   authDomain: "patterns-c5f7a.firebaseapp.com",
   projectId: "patterns-c5f7a",
