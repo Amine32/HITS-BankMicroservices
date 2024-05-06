@@ -8,6 +8,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Navbar, Nav, Container } from "react-bootstrap";
 import { useTheme } from "./hooks/use-theme";
 import "./App.css";
+import Notification from "./components/Notification";
 
 function App() {
   const { theme, setTheme } = useTheme();
@@ -66,6 +67,7 @@ function App() {
             <Route path="/manage-users" element={<ManageUsers />} />
           </Routes>
         </Container>
+        <Notification/>
       </div>
     </Router>
   );
