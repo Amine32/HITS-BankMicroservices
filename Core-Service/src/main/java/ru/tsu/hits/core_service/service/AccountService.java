@@ -7,12 +7,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import ru.tsu.hits.core_service.dto.AccountTransferDto;
 import ru.tsu.hits.core_service.model.Account;
 import ru.tsu.hits.core_service.model.Currency;
 import ru.tsu.hits.core_service.model.TransactionType;
 import ru.tsu.hits.core_service.repository.AccountRepository;
+import ru.tsu.hits.core_service.security.CustomPrincipal;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -120,7 +122,7 @@ public class AccountService {
         return accountRepository.findByIdAndOwnerId(accountId, userId).isPresent();
     }
 
-    public void transferMoney(AccountTransferDto transferDto, Long userId) {
+    public void transferMoney(AccountTransferDto transferDto) {
         Account fromAccount = accountRepository.findById(transferDto.getFromAccountId())
                 .orElseThrow(() -> new RuntimeException("Source account not found"));
 
@@ -128,7 +130,8 @@ public class AccountService {
                 .orElseThrow(() -> new RuntimeException("Destination account not found"));
 
         // Check if the user owns the source account
-        if (!fromAccount.getOwnerId().equals(userId)) {
+        CustomPrincipal principal = (CustomPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (!fromAccount.getOwnerId().equals(principal.getUserId())) {
             throw new RuntimeException("User does not own the source account");
         }
 
@@ -229,13 +232,13 @@ public class AccountService {
         return newAccount;
     }
 
-    public void performIdempotentTransfer(AccountTransferDto transferDto, Long userId, String idempotencyKey) {
+    public void performIdempotentTransfer(AccountTransferDto transferDto, String idempotencyKey) {
         Object existingResponse = idempotencyCacheService.getResponse(idempotencyKey);
         if (existingResponse != null) {
             return;
         }
 
-        transferMoney(transferDto, userId);
+        transferMoney(transferDto);
         idempotencyCacheService.storeResponse(idempotencyKey, "Transfer successful");
     }
 
