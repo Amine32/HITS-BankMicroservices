@@ -10,7 +10,7 @@ spring:
             - StripPrefix=1
             - name: Retry
               args:
-                retries: 3
+                retries: 10
                 statuses: GATEWAY_TIMEOUT
             - name: CircuitBreaker
               args:
@@ -27,7 +27,7 @@ spring:
             - StripPrefix=1
             - name: Retry
               args:
-                retries: 2
+                retries: 10
                 statuses: GATEWAY_TIMEOUT
             - name: CircuitBreaker
               args:
@@ -44,7 +44,7 @@ spring:
             - StripPrefix=1
             - name: Retry
               args:
-                retries: 3
+                retries: 10
                 statuses: GATEWAY_TIMEOUT
             - name: CircuitBreaker
               args:
